@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muistiinpanot</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Notes-sivun omat tyylit */
+        .notes-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .notes-form input {
+            flex: 1;
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            transition: border-color 0.2s, background 0.3s;
+        }
+        
+        .notes-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .notes-form input::placeholder { color: var(--text-dim); }
+        
+        .notes-form input.title-input {
+            flex: 0.4;
+        }
+        
+        .notes-form button {
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .notes-form {
+                flex-direction: column;
+            }
+            .notes-form input.title-input,
+            .notes-form input {
+                flex: none;
+                width: 100%;
+            }
+            .notes-form button {
+                width: 100%;
+            }
+            .note-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .note-actions {
+                width: 100%;
+            }
+            .note-actions button {
+                flex: 1;
+            }
+        }
+        
+        .notes-list {
+            margin-top: 20px;
+        }
+        
+        .note-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s, background 0.3s;
+        }
+        
+        .note-item:hover { border-color: var(--accent); }
+        
+        .note-content {
+            flex: 1;
+        }
+        
+        .note-title {
+            color: var(--accent);
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        
+        .note-text {
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .note-time {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-top: 8px;
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+        }
+        
+        .empty-state::before {
+            content: '[ ]';
+            display: block;
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container container-narrow">
+        <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+            <span class="terminal-title">notes ~ terminal</span>
+            <button class="theme-toggle" onclick="toggleTheme()">teema</button>
+        </div>
+        
+        <div class="terminal-body">
+            <a href="index.html" class="back-link">takaisin</a>
+            
+            <h1>Muistiinpanot</h1>
+            <p class="subtitle">Tallennetaan PostgreSQL-tietokantaan</p>
+            
+            <form class="notes-form" onsubmit="addNote(event)">
+                <input type="text" id="titleInput" class="title-input" placeholder="Otsikko (valinnainen)">
+                <input type="text" id="noteInput" placeholder="Kirjoita muistiinpano..." required>
+                <button type="submit" class="btn">Lisää</button>
+            </form>
+            
+            <div id="notesList" class="notes-list">
+                <div class="loading">Ladataan...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/theme.js"></script>
+    <script>
+        const API_URL = '/api';
+        
+        async function loadNotes() {
+            try {
+                const res = await fetch(`${API_URL}/notes`);
+                const notes = await res.json();
+                renderNotes(notes);
+            } catch (error) {
+                document.getElementById('notesList').innerHTML = 
+                    '<div class="empty-state">API ei vastaa</div>';
+            }
+        }
+        
+        function renderNotes(notes) {
+            const container = document.getElementById('notesList');
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="empty-state">Ei muistiinpanoja</div>';
+                return;
+            }
+            
+            container.innerHTML = notes.map(note => `
+                <div class="note-item">
+                    <div class="note-content">
+                        ${note.title ? `<div class="note-title">${escapeHtml(note.title)}</div>` : ''}
+                        <div class="note-text">${escapeHtml(note.content)}</div>
+                        <div class="note-time">${formatDate(note.created_at)}</div>
+                    </div>
+                    <div class="note-actions">
+                        <button class="btn-small btn-danger" onclick="deleteNote(${note.id})">poista</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function addNote(e) {
+            e.preventDefault();
+            const titleInput = document.getElementById('titleInput');
+            const noteInput = document.getElementById('noteInput');
+            const title = titleInput.value.trim();
+            const content = noteInput.value.trim();
+            
+            if (!content) return;
+            
+            try {
+                await fetch(`${API_URL}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+                titleInput.value = '';
+                noteInput.value = '';
+                loadNotes();
+            } catch (error) {
+                console.error('Virhe:', error);
+            }
+        }
+        
+        async function deleteNote(id) {
+            try {
+                await fetch(`${API_URL}/notes/${id}`, { method: 'DELETE' });
+                loadNotes();
+            } catch (error) {
+                console.error('Virhe:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString('fi-FI');
+        }
+        
+        loadNotes();
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+services:
+  # PÄÄSOVELLUKSEN OSAT
+
+  # Nginx-palvelin haetaan omasta hakemistosta. Portti 80 ulospäin. Lisätty healthcheck tuomaan todellisen sovelluksen tuntua.
+  # Volume on määritetty staattisille HTML-tiedostoille.
+  # Kontin sisällä staattisten ttiedostojen tallennussijainti on /usr/share/nginx/html, isäntäkoneella samainen on ./html. Read only.
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+
+  # Api-palvelin haetaan omasta hakemistosta (python-alpine). Hakemistossa on Dockerfilen lisäksi sovelluskoodi ja vaaditut python-kirjastot.
+  # Riippuvuussuhde tietokantaan (protokolla, käyttäjänimi, salasana, palvelun nimi+portti) ja redis-palvelimeen (protokolla, palvelun nimi+portti) on määritetty.
+  # Ympäristömuuttujina annetaan tietokanta ()- ja redis-yhteystiedot. Tähänkin lisätty healthcheck tuomaan todellisen sovelluksen tuntua.
+  # Healthcheck tarkistaa /health päätepisteen toiminnan. 10 sek välein, 5 sekuntin aikakatkaisulla, 3 yritystä ennen epäterveeksi tuomitsemista.
+  api:
+    build: ./api
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/notes
+      - REDIS_URL=redis://redis:6379
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # TIETOKANTA JA VÄLIMUISTI
+
+  # Tietokanta noudetaan suoraan Postgresin virallisesta kevyestä alpine-kuvasta. Ellei nyt satu olemaan valmiina, Docker lataa sen automaattisesti Docker Hubista.
+  # Määritetty käyttäjänimi, salasana ja tietokannan nimi ympäristömuuttujina.
+  # Volume tietokantadatalle, jotta data säilyy kontin uudelleenkäynnistyksissä.
+  # Volumesta: /var/lib/postgresql/data on kontin sisäinen polku datan sijaintiin, db_data taasen Dockerin hallinnoima volume. Read only.
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=notes
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis tukee sovellusta välimuistina ja nopeana tietovarastona. Käytetään virallista redis-kuvaa alpine versiona.
+  # Auttaa tietokantaa keventämällä kuormitusta. Käyttäjä hyötyy nopeammista vasteajoista, koska redis lyö nopeudessa tietokantahaut ilmeisesti mennen tullen.
+  # Suorituskykyä parantava palvelu, ei pakollinen osa tätä kokonaisuutta. Joskin suositeltava.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # HALLINTA JA MONITOROINTI
+
+  # Adminer-kuva on otettu tähän kokonaisuuteen tietokannan hallintaa varten. Sen avulla voidaan tarkastella ja muokata tietokannan sisältöä web-käyttöliittymän kautta.
+  # Standalone-versio, joka sisältää kaiken tarvittavan yhdessä kontissa.
+  # Kontin portti 8080 on sidottu isäntäkoneen porttiin 8080. 
+  # Riippuvuus tietokantapalvelimesta, jotta adminer ei käynnisty turhan päin ennen kuin tietokanta on valmis.
+  adminer:
+    image: adminer:4-standalone
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # Prometheus ja Grafana ovat työkalut sovelluksen monitorointiin ja visualisointiin.
+  # Ne toimivat yhdessä siten, että Prometheus kerää ja tallentaa metristietoa sovelluksesta ja Grafana tarjoaa käyttöliittymän näiden tietojen visualisointiin.
+  # prometheus.yml- tiedoston avulla määritellään, mitä palveluita Prometheus tarkkailee. Ja millaisin aikavälein.
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+  # Grafana on visuaalinen käyttöliittymä Prometheukselta vastaanotettavalle monitorointidatalle.
+  # Käyttöliittymän osoite on isäntäkoneen portissa 3000.
+  # Oletuskäyttäjä on admin ja salasana admin.
+  # Lisätty ympäristömuuttujina asetukset, jotka estävät käyttäjien itse rekisteröitymisen ja anonyymin käytön.
+  # Grafana luonnollisestikin riippuu Prometheuksesta, joten se käynnistyy vasta kun Prometheus on valmis.
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # TUNNELI
+
+  # Cloudflare-tunneli julkiseen verkkoon. Laitettu testimielessä käyttöön, jotta olisi helppoa testata sovellusta omalla mobiililaitteella.
+  # Tunneli ohjaa liikenteen nginx-palvelimelle porttiin 80. Internetistä pääsy nginx:iin tapahtuu Cloudflaren verkon kautta.
+  # Tunneli riippuu nginx-palvelimesta, joten se käynnistyy vasta kun nginx on valmis.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://nginx:80
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
+# VOLYYMIT
+
+# Nimetään käytössä oleva volume tietokannalle. 
+# Docker hallinnoi volyymia nimeltä db_data, joka on tallennettu Dockerin omaan tallennustilaan isäntäkoneella.
+volumes:
+  db_data:

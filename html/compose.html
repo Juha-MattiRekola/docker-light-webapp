@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container container-wide">
+        <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+            <span class="terminal-title">docker-compose ~ terminal</span>
+            <button class="theme-toggle" onclick="toggleTheme()">teema</button>
+        </div>
+        
+        <div class="terminal-body">
+            <a href="index.html" class="back-link">takaisin</a>
+            
+            <h1>Docker Compose</h1>
+            <p class="subtitle">Monisäiliösovelluksen määrittely ja hallinta</p>
+            
+            <h2 class="section-title">Miksi Compose?</h2>
+            <p>
+                Docker Compose mahdollistaa usean kontin sovelluksen määrittelyn yhdessä 
+                YAML-tiedostossa. Yksi komento käynnistää kaikki palvelut oikeassa järjestyksessä.
+            </p>
+            
+            <h2 class="section-title">Esimerkki docker-compose.yaml</h2>
+            
+            <pre><code><span class="code-comment"># Tämän projektin konfiguraatio</span>
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - flask-api
+
+  flask-api:
+    build: ./api
+    environment:
+      - DATABASE_URL=postgresql://...
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgresql
+      - redis
+
+  postgresql:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  pg_data:
+  redis_data:</code></pre>
+            
+            <h2 class="section-title">Komennot</h2>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Komento</th>
+                        <th>Kuvaus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>docker compose up -d</code></td>
+                        <td>Käynnistä kaikki palvelut taustalle</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose down</code></td>
+                        <td>Pysäytä ja poista kontit</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose logs -f</code></td>
+                        <td>Seuraa kaikkien konttien lokeja</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose ps</code></td>
+                        <td>Listaa palveluiden tila</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose build</code></td>
+                        <td>Rakenna imaget uudelleen</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose restart</code></td>
+                        <td>Käynnistä palvelut uudelleen</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose exec palvelu sh</code></td>
+                        <td>Avaa shell tiettyyn konttiin</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h2 class="section-title">Tärkeät konseptit</h2>
+            
+            <ul>
+                <li><strong>depends_on</strong> – käynnistysjärjestys (ei odota valmiutta)</li>
+                <li><strong>healthcheck</strong> – tarkistaa palvelun toimivuuden</li>
+                <li><strong>networks</strong> – eristää palvelut omiin verkkoihin</li>
+                <li><strong>volumes</strong> – nimetyt volumet pysyvään dataan</li>
+                <li><strong>build context</strong> – mistä Dockerfile löytyy</li>
+                <li><strong>environment</strong> – ympäristömuuttujat konttiin</li>
+            </ul>
+            
+            <h2 class="section-title">Healthcheck-esimerkki</h2>
+            
+            <div class="card card-accent">
+                <pre><code>services:
+  api:
+    build: ./api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s</code></pre>
+            </div>
+            
+            <div class="info-box" style="margin-top: 20px;">
+                <strong>Vinkki:</strong> Käytä <code>docker compose up --build</code> rakentaaksesi 
+                imaget uudelleen koodimuutosten jälkeen.
+            </div>
+        </div>
+    </div>
+    <script src="js/theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+flask==3.0.0
+pillow==10.1.0
+numpy==1.26.2
+psycopg2-binary==2.9.9
+redis==5.0.1
+
+# Vaaditut kirjastot docker-light projektin toimintaan:
+
+# Flask on kevyt web‑framework Pythonille
+# Pillow kuvankäsittelyyn Pythonissa
+# NumPy numeeriseen laskentaan Pythonissa
+# psycopg2-binary PostgreSQL-tietokantayhteyksiin.
+# Redis‑asiakaskirjasto Pythonille, välimuistin ja avain‑arvo‑tietokannan käyttöön

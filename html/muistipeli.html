@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muistipeli</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Muistipeli-sivun omat tyylit */
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        
+        .game-grid {
+            display: grid;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto 25px;
+        }
+        
+        .grid-4x4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-6x6 { grid-template-columns: repeat(6, 1fr); }
+        
+        .card {
+            aspect-ratio: 1;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .card:hover:not(.flipped):not(.matched) {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+        
+        .card.flipped,
+        .card.matched {
+            background: var(--bg-card);
+            border-color: var(--accent);
+        }
+        
+        .card.matched {
+            opacity: 0.7;
+            cursor: default;
+        }
+        
+        .card:not(.flipped):not(.matched)::after {
+            content: '?';
+            color: var(--text-dim);
+        }
+        
+        @media (max-width: 500px) {
+            .game-grid {
+                max-width: 100%;
+                gap: 6px;
+            }
+            .card { font-size: 1.5em; }
+            .grid-6x6 .card { font-size: 1em; }
+            .stats { gap: 20px; padding: 15px; }
+            .stat-value { font-size: 1.4em; }
+        }
+        
+        @media (max-width: 360px) {
+            .game-grid { gap: 4px; }
+            .grid-6x6 .card { font-size: 0.9em; }
+        }
+        
+        .save-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .save-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .save-form input {
+            flex: 1;
+            padding: 10px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            transition: border-color 0.2s, background 0.3s;
+        }
+        
+        .save-form input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .saves-list {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .save-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: border-color 0.2s, background 0.3s;
+        }
+        
+        .save-item:hover { border-color: var(--accent); }
+        
+        .save-info {
+            flex: 1;
+        }
+        
+        .save-name {
+            color: var(--text);
+            font-size: 14px;
+        }
+        
+        .save-meta {
+            color: var(--text-dim);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        .save-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .win-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .win-modal.show { display: flex; }
+        
+        .win-content {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+        }
+        
+        .win-content h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+        
+        .win-content p {
+            color: var(--text-dim);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 500px) {
+            .game-grid { gap: 6px; }
+            .card { font-size: 1.5em; }
+            .grid-6x6 .card { font-size: 1.2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+            <span class="terminal-title">memory-game ~ terminal</span>
+            <button class="theme-toggle" onclick="toggleTheme()">teema</button>
+        </div>
+        
+        <div class="terminal-body">
+            <a href="index.html" class="back-link">takaisin</a>
+            
+            <h1>Muistipeli</h1>
+            <p class="subtitle">Pelitila tallennetaan Redis-välimuistiin</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="moves">0</div>
+                    <div class="stat-label">Siirrot</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="pairs">0</div>
+                    <div class="stat-label">Parit</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="time">0:00</div>
+                    <div class="stat-label">Aika</div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button class="btn-small" onclick="startGame(16)">4×4</button>
+                <button class="btn-small" onclick="startGame(36)">6×6</button>
+                <button class="btn btn-warning" onclick="resetGame()">Uusi peli</button>
+            </div>
+            
+            <div id="gameGrid" class="game-grid grid-4x4"></div>
+            
+            <div class="save-section">
+                <h2 class="section-title">Tallennetut pelit</h2>
+                
+                <form class="save-form" onsubmit="saveGame(event)">
+                    <input type="text" id="saveName" placeholder="Tallennuksen nimi..." required>
+                    <button type="submit" class="btn">Tallenna</button>
+                </form>
+                
+                <div id="savesList" class="saves-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="winModal" class="win-modal">
+        <div class="win-content">
+            <h2>Voitit!</h2>
+            <p id="winStats"></p>
+            <button class="btn" onclick="closeWinModal()">OK</button>
+        </div>
+    </div>
+    
+    <script src="js/theme.js"></script>
+    <script>
+        const SYMBOLS = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅'];
+        
+        let cards = [];
+        let flipped = [];
+        let matched = 0;
+        let moves = 0;
+        let totalPairs = 0;
+        let timer = null;
+        let seconds = 0;
+        let locked = false;
+        
+        function startGame(size = 16) {
+            clearInterval(timer);
+            const pairCount = size / 2;
+            totalPairs = pairCount;
+            const symbols = SYMBOLS.slice(0, pairCount);
+            cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            
+            flipped = [];
+            matched = 0;
+            moves = 0;
+            seconds = 0;
+            locked = false;
+            
+            updateStats();
+            timer = setInterval(() => {
+                seconds++;
+                document.getElementById('time').textContent = formatTime(seconds);
+            }, 1000);
+            
+            const grid = document.getElementById('gameGrid');
+            grid.className = `game-grid ${size === 36 ? 'grid-6x6' : 'grid-4x4'}`;
+            grid.innerHTML = cards.map((s, i) => 
+                `<div class="card" data-index="${i}" onclick="flipCard(${i})"></div>`
+            ).join('');
+        }
+        
+        function flipCard(index) {
+            if (locked) return;
+            const card = document.querySelector(`[data-index="${index}"]`);
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flipped.length >= 2) return;
+            
+            card.classList.add('flipped');
+            card.textContent = cards[index];
+            flipped.push(index);
+            
+            if (flipped.length === 2) {
+                moves++;
+                updateStats();
+                checkMatch();
+            }
+        }
+        
+        function checkMatch() {
+            const [a, b] = flipped;
+            if (cards[a] === cards[b]) {
+                document.querySelector(`[data-index="${a}"]`).classList.add('matched');
+                document.querySelector(`[data-index="${b}"]`).classList.add('matched');
+                matched++;
+                flipped = [];
+                updateStats();
+                
+                if (matched === totalPairs) {
+                    clearInterval(timer);
+                    showWinModal();
+                }
+            } else {
+                locked = true;
+                setTimeout(() => {
+                    document.querySelector(`[data-index="${a}"]`).classList.remove('flipped');
+                    document.querySelector(`[data-index="${a}"]`).textContent = '';
+                    document.querySelector(`[data-index="${b}"]`).classList.remove('flipped');
+                    document.querySelector(`[data-index="${b}"]`).textContent = '';
+                    flipped = [];
+                    locked = false;
+                }, 800);
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('pairs').textContent = `${matched}/${totalPairs}`;
+        }
+        
+        function formatTime(s) {
+            return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+        }
+        
+        function resetGame() {
+            startGame(cards.length || 16);
+        }
+        
+        function showWinModal() {
+            document.getElementById('winStats').textContent = 
+                `${moves} siirtoa, aika ${formatTime(seconds)}`;
+            document.getElementById('winModal').classList.add('show');
+        }
+        
+        function closeWinModal() {
+            document.getElementById('winModal').classList.remove('show');
+        }
+        
+        // Redis-tallennus
+        async function saveGame(e) {
+            e.preventDefault();
+            const name = document.getElementById('saveName').value.trim();
+            if (!name) return;
+            
+            const state = {
+                cards, flipped: [], matched, moves, seconds, totalPairs,
+                matchedCards: Array.from(document.querySelectorAll('.matched')).map(c => parseInt(c.dataset.index))
+            };
+            
+            try {
+                await fetch('/api/memory/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, state })
+                });
+                document.getElementById('saveName').value = '';
+                loadSaves();
+            } catch (error) {
+                console.error('Tallennus epäonnistui:', error);
+            }
+        }
+        
+        async function loadSaves() {
+            try {
+                const res = await fetch('/api/memory/saves');
+                const saves = await res.json();
+                renderSaves(saves);
+            } catch (error) {
+                document.getElementById('savesList').innerHTML = 
+                    '<div class="empty-msg">Ei tallennuksia</div>';
+            }
+        }
+        
+        function renderSaves(saves) {
+            const container = document.getElementById('savesList');
+            if (saves.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Ei tallennuksia</div>';
+                return;
+            }
+            
+            container.innerHTML = saves.map(save => `
+                <div class="save-item">
+                    <div class="save-info">
+                        <div class="save-name">${escapeHtml(save.name)}</div>
+                        <div class="save-meta">${save.matched}/${save.totalPairs} paria, ${save.moves} siirtoa</div>
+                    </div>
+                    <div class="save-actions">
+                        <button class="btn-small" onclick="loadGame('${escapeHtml(save.name)}')">Lataa</button>
+                        <button class="btn-small btn-danger" onclick="deleteSave('${escapeHtml(save.name)}')">Poista</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function loadGame(name) {
+            try {
+                const res = await fetch(`/api/memory/load/${encodeURIComponent(name)}`);
+                const state = await res.json();
+                
+                clearInterval(timer);
+                cards = state.cards;
+                matched = state.matched;
+                moves = state.moves;
+                seconds = state.seconds;
+                totalPairs = state.totalPairs;
+                flipped = [];
+                locked = false;
+                
+                const grid = document.getElementById('gameGrid');
+                grid.className = `game-grid ${cards.length === 36 ? 'grid-6x6' : 'grid-4x4'}`;
+                grid.innerHTML = cards.map((s, i) => {
+                    const isMatched = state.matchedCards && state.matchedCards.includes(i);
+                    return `<div class="card ${isMatched ? 'matched flipped' : ''}" data-index="${i}" onclick="flipCard(${i})">${isMatched ? s : ''}</div>`;
+                }).join('');
+                
+                updateStats();
+                document.getElementById('time').textContent = formatTime(seconds);
+                
+                timer = setInterval(() => {
+                    seconds++;
+                    document.getElementById('time').textContent = formatTime(seconds);
+                }, 1000);
+            } catch (error) {
+                console.error('Lataus epäonnistui:', error);
+            }
+        }
+        
+        async function deleteSave(name) {
+            try {
+                await fetch(`/api/memory/delete/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                loadSaves();
+            } catch (error) {
+                console.error('Poisto epäonnistui:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        startGame(16);
+        loadSaves();
+    </script>
+</body>
+</html>
