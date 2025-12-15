@@ -1,20 +1,42 @@
 # Docker Mikropalvelut
 
-Kevyt Docker-mikropalvelusovellus, joka esittelee Docker-osaamista. 8 konttia, yksi verkko.
-
-**[Live Demo](https://github.com/Juha-MattiRekola/docker-light-webapp)** (käynnistä itse alla olevilla ohjeilla)
+Kevyt Docker-mikropalvelusovellus, joka esittelee Docker-osaamista. Muodostaa 8 Docker-kuvaa, 8 Docker-konttia, ja yhden verkon.
 
 ## Vaatimukset
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) tai Docker Engine (Linux)
-- Git (valinnainen, voit myös ladata ZIP:nä)
+- [Git](https://git-scm.com/downloads/) (valinnainen, voit myös ladata ZIP:nä)
 
-## Asennus ja käynnistys
+### Ennen aloitusta
 
-### 1. Kloonaa repository
+1. **Asenna Docker Desktop** (Windows/Mac) tai Docker Engine + Docker Compose (Linux)
+2. **Varmista että Docker on käynnissä:**
+   - **Windows/Mac:** Docker Desktop -ikoni näkyy tehtäväpalkissa ja on "running"-tilassa
+   - **Linux:** Aja `systemctl status docker` tai `docker info`
+3. **Testaa asennus:**
+   ```bash
+   docker --version
+   ```
+   ```bash
+   docker compose version
+   ```
+   Molempien komentojen pitäisi tulostaa versionumero.
+
+> **Huom:** Windows-käyttäjät: varmista että WSL 2 on asennettu ja Docker Desktop käyttää sitä (Settings → General → Use WSL 2 based engine).
+
+## Asennus ja käynnistys pikaisesti
+
+### 1. Kloonaa repository ja siirry docker-light-webapp -hakemistoon
+
+**Kloonaa repository**
 
 ```bash
 git clone https://github.com/Juha-MattiRekola/docker-light-webapp.git
+```
+
+**Siirry docker-light-webapp -hakemistoon**
+
+```bash
 cd docker-light-webapp
 ```
 
@@ -27,34 +49,70 @@ Sovellus toimii ilman .env-tiedostoa, mutta voit luoda sen mukauttamista varten:
 ```bash
 # Linux/Mac
 cp .env.example .env
-
+```
+```bash
 # Windows (PowerShell)
 Copy-Item .env.example .env
 ```
 
 ### 3. Käynnistä
 
-**Nopea käynnistys skriptillä:**
+**Nopea käynnistys skriptillä Linuxissa/Macissa:**
+
+**Anna ajo-oikeudet**
 
 ```bash
 # Linux/Mac
 chmod +x start.sh
-./start.sh
+```
 
+**Aja käynnistysskripti**
+
+```bash
+# Linux/Mac
+./start.sh
+```
+
+**Nopea käynnistys skriptillä Windowsissa:**
+
+**Anna ajo-oikeudet**
+
+```powershell
+# Windows (PowerShell)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Aja käynnistysskripti**
+
+```powershell
 # Windows (PowerShell)
 .\start.ps1
 ```
 
 **Tai manuaalisesti:**
 
+Varmista että olet projektikansiossa ja Docker on käynnissä, sitten aja:
+
 ```bash
 docker compose up -d --build
+```
+
+Tämä komento:
+1. Rakentaa kaikki Docker-imaget (`--build`)
+2. Käynnistää kaikki 8 konttia taustalle (`-d` = detached)
+3. Luo verkon ja volyymit automaattisesti
+
+Ensimmäisellä kerralla lataus saattaa kestää muutaman minuutin (base imaget ladataan).
+
+**Tällä saat Cloudflare-tunnelin URLin manuaalisesti:**
+```bash
+docker compose logs tunnel | grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' | tail -1
 ```
 
 ### 4. Avaa selaimessa
 
 - **Lokaali:** http://localhost
-- **Cloudflare-tunneli:** Skripti näyttää julkisen URL:n automaattisesti
+- **Cloudflare-tunneli:** Skripti näyttää julkisen URL:n automaattisesti, muutoin käytä manuaalista hakua.
 
 ---
 
@@ -97,43 +155,50 @@ docker compose up -d --build
 
 ---
 
-## Käynnistys
+## Käynnistys perusteellisemmin
 
 ### Peruskomennot
 
 ```bash
 # Käynnistä kaikki kontit taustalle
 docker compose up -d
-
+```
+```bash
 # Käynnistä ja rakenna imaget uudelleen
 docker compose up -d --build
-
+```
+```bash
 # Seuraa lokeja reaaliajassa
 docker compose logs -f
-
+```
+```bash
 # Seuraa tietyn kontin lokeja
 docker compose logs -f api
-
+```
+```bash
 # Pysäytä kaikki kontit
 docker compose down
-
+```
+```bash
 # Pysäytä ja poista myös volyymit (VAROITUS: poistaa tietokannan!)
 docker compose down -v
 ```
 
 ### Käynnistysskriptit
 
-Skriptit käynnistävät kaikki kontit ja näyttävät Cloudflare-tunnelin julkisen URL:n automaattisesti.
+Skriptit luovat kuvat ja käynnistävät kaikki kontit sekä näyttävät Cloudflare-tunnelin julkisen URL:n automaattisesti.
 
 #### Linux / macOS (Bash)
 
 ```bash
 # 1. Navigoi projektikansioon
 cd /polku/docker-light
-
+```
+```bash
 # 2. Anna suoritusoikeus (vain kerran)
 chmod +x start.sh
-
+```
+```bash
 # 3. Käynnistä
 ./start.sh
 ```
@@ -143,10 +208,12 @@ chmod +x start.sh
 ```powershell
 # 1. Navigoi projektikansioon
 cd C:\polku\docker-light
-
+```
+```powershell
 # 2. Salli skriptien suoritus (vain kerran, vaatii admin-oikeudet)
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
+```
+```powershell
 # 3. Käynnistä
 .\start.ps1
 ```
@@ -169,7 +236,7 @@ Odotetaan Cloudflare-tunnelia...
 
 ✓ Palvelut käynnissä!
 
-Julkinen URL: https://random-words.trycloudflare.com
+Julkinen URL: https://satunnainen-osoitteenosa.trycloudflare.com
 Lokaali:      http://localhost
 ```
 
@@ -229,17 +296,20 @@ Tunnelin URL vaihtuu joka käynnistyskerralla.
 ```bash
 # Hae kaikki muistiinpanot
 curl http://localhost/api/notes
-
+```
+```bash
 # Lisää muistiinpano
 curl -X POST http://localhost/api/notes \
   -H "Content-Type: application/json" \
   -d '{"content": "Otsikko|Sisältö tähän"}'
-
+```
+```bash
 # Muokkaa muistiinpanoa
 curl -X PUT http://localhost/api/notes/1 \
   -H "Content-Type: application/json" \
   -d '{"content": "Uusi otsikko|Uusi sisältö"}'
-
+```
+```bash
 # Poista muistiinpano
 curl -X DELETE http://localhost/api/notes/1
 ```
@@ -249,15 +319,18 @@ curl -X DELETE http://localhost/api/notes/1
 ```bash
 # Hae kaikki tallennukset
 curl http://localhost/api/memory/saves
-
+```
+```bash
 # Tallenna peli
 curl -X POST http://localhost/api/memory/save \
   -H "Content-Type: application/json" \
   -d '{"name": "Peli 1", "state": {"cards": [], "matched": 0}}'
-
+```
+```bash
 # Lataa tallennettu peli
 curl http://localhost/api/memory/load/Peli%201
-
+```
+```bash
 # Poista tallennus
 curl -X DELETE http://localhost/api/memory/delete/Peli%201
 ```
@@ -267,7 +340,8 @@ curl -X DELETE http://localhost/api/memory/delete/Peli%201
 ```bash
 # Tarkista API:n tila
 curl http://localhost/health
-
+```
+```bash
 # Prometheus-metriikat
 curl http://localhost/api/metrics
 ```
@@ -281,13 +355,16 @@ curl http://localhost/api/metrics
 ```bash
 # Listaa projektiin liittyvät imaget
 docker images | grep docker-light
-
+```
+```bash
 # Rakenna imaget uudelleen
 docker compose build
-
+```
+```bash
 # Rakenna tietty image uudelleen
 docker compose build api
-
+```
+```bash
 # Poista käyttämättömät imaget
 docker image prune
 ```
@@ -297,16 +374,20 @@ docker image prune
 ```bash
 # Listaa käynnissä olevat kontit
 docker compose ps
-
+```
+```bash
 # Listaa kaikki kontit (myös pysäytetyt)
 docker ps -a
-
+```
+```bash
 # Käynnistä yksittäinen kontti uudelleen
 docker compose restart api
-
+```
+```bash
 # Avaa shell konttiin
 docker compose exec api sh
-
+```
+```bash
 # Suorita komento kontissa
 docker compose exec db psql -U postgres -d notes -c "SELECT * FROM notes;"
 ```
@@ -316,10 +397,12 @@ docker compose exec db psql -U postgres -d notes -c "SELECT * FROM notes;"
 ```bash
 # Listaa volyymit
 docker volume ls
-
+```
+```bash
 # Tarkastele volyymin tietoja
 docker volume inspect docker-light_db_data
-
+```
+```bash
 # Poista käyttämättömät volyymit
 docker volume prune
 ```
@@ -329,7 +412,8 @@ docker volume prune
 ```bash
 # Listaa verkot
 docker network ls
-
+```
+```bash
 # Tarkastele projektin verkkoa
 docker network inspect docker-light_default
 ```
@@ -339,10 +423,12 @@ docker network inspect docker-light_default
 ```bash
 # Poista kaikki pysäytetyt kontit
 docker container prune
-
+```
+```bash
 # Poista kaikki käyttämättömät resurssit
 docker system prune
-
+```
+```bash
 # Poista kaikki volumet (varoitus!). Vastaa "y" tai "yes" mikäli haluat poistaa volumet.
 docker system prune -a --volumes
 ```
