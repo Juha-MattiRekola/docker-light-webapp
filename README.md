@@ -2,6 +2,62 @@
 
 Kevyt Docker-mikropalvelusovellus, joka esittelee Docker-osaamista. 8 konttia, yksi verkko.
 
+**[Live Demo](https://github.com/Juha-MattiRekola/docker-light-webapp)** (käynnistä itse alla olevilla ohjeilla)
+
+## Vaatimukset
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) tai Docker Engine (Linux)
+- Git (valinnainen, voit myös ladata ZIP:nä)
+
+## Asennus ja käynnistys
+
+### 1. Kloonaa repository
+
+```bash
+git clone https://github.com/Juha-MattiRekola/docker-light-webapp.git
+cd docker-light-webapp
+```
+
+**Tai** lataa ZIP GitHubista: Code → Download ZIP → pura haluamaasi kansioon.
+
+### 2. Luo .env-tiedosto (valinnainen)
+
+Sovellus toimii ilman .env-tiedostoa, mutta voit luoda sen mukauttamista varten:
+
+```bash
+# Linux/Mac
+cp .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
+```
+
+### 3. Käynnistä
+
+**Nopea käynnistys skriptillä:**
+
+```bash
+# Linux/Mac
+chmod +x start.sh
+./start.sh
+
+# Windows (PowerShell)
+.\start.ps1
+```
+
+**Tai manuaalisesti:**
+
+```bash
+docker compose up -d --build
+```
+
+### 4. Avaa selaimessa
+
+- **Lokaali:** http://localhost
+- **Cloudflare-tunneli:** Skripti näyttää julkisen URL:n automaattisesti
+
+---
+
 ## Arkkitehtuuri
 
 ```
@@ -296,26 +352,32 @@ docker system prune -a --volumes
 ## Tiedostorakenne
 
 ```
-docker-light/
+docker-light-webapp/
 ├── docker-compose.yaml     # Palvelumäärittelyt (8 konttia)
 ├── prometheus.yml          # Prometheus scrape config
-├── start.sh                # Käynnistysskripti (Bash, Linux)
-├── start.ps1               # Käynnistysskripti (PowerShell)
+├── start.sh                # Käynnistysskripti (Linux/Mac)
+├── start.ps1               # Käynnistysskripti (Windows)
+├── .env.example            # Ympäristömuuttujien pohja
+├── .gitignore              # Git-asetukset
 ├── README.md               # Tämä dokumentaatio
 ├── api/
 │   ├── Dockerfile          # Python 3.12-alpine
-│   ├── app.py              # Flask-sovellus
-│   └── requirements.txt    # flask, pillow, psycopg2, redis
+│   ├── app.py              # Flask-sovellus (API + kuvankäsittely)
+│   └── requirements.txt    # flask, pillow, psycopg2, redis, numpy
 ├── nginx/
 │   ├── Dockerfile          # nginx:stable-alpine
 │   └── nginx.conf          # Reverse proxy config
 └── html/
     ├── index.html          # Etusivu
-    ├── notes.html          # Muistiinpanot
-    ├── muistipeli.html     # Muistipeli
+    ├── notes.html          # Muistiinpanot (PostgreSQL + Redis)
+    ├── muistipeli.html     # Muistipeli (Redis-tallennus)
     ├── arkkitehtuuri.html  # Arkkitehtuuridokumentaatio
     ├── docker.html         # Docker-perusteet
-    └── compose.html        # Docker Compose -opas
+    ├── compose.html        # Docker Compose -opas
+    ├── css/
+    │   └── style.css       # Yhteinen tyylitiedosto
+    └── js/
+        └── theme.js        # Teeman vaihto (tumma/vaalea)
 ```
 
 ---
@@ -340,3 +402,11 @@ Projektissa käytetyt Docker-ominaisuudet:
 ## Teema
 
 Kaikilla sivuilla on tumma/vaalea teemavaihto. Teema tallennetaan selaimen localStorageen ja säilyy sivujen välillä.
+
+---
+
+## Tekijä
+
+Luotu Docker-osaamisen demonstroimiseksi.
+
+**GitHub:** [Juha-MattiRekola](https://github.com/Juha-MattiRekola)
