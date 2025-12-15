@@ -57,32 +57,32 @@ Copy-Item .env.example .env
 
 ### 3. Käynnistä
 
-**Nopea käynnistys skriptillä Linuxissa/Macissa:**
+**Nopea käynnistys skriptillä <u>Linuxissa/Macissa:</u>**
 
-**Anna ajo-oikeudet**
+**1. Anna ajo-oikeudet**
 
 ```bash
 # Linux/Mac
 chmod +x start.sh
 ```
 
-**Aja käynnistysskripti**
+**2. Aja käynnistysskripti**
 
 ```bash
 # Linux/Mac
 ./start.sh
 ```
 
-**Nopea käynnistys skriptillä Windowsissa:**
+**Nopea käynnistys skriptillä <u>Windowsissa</u>:**
 
-**Anna ajo-oikeudet**
+**1. Anna ajo-oikeudet**
 
 ```powershell
 # Windows (PowerShell)
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-**Aja käynnistysskripti**
+**2. Aja käynnistysskripti**
 
 ```powershell
 # Windows (PowerShell)
