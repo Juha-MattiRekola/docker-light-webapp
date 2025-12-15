@@ -249,6 +249,78 @@ def memory_delete(name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# MEMORY GAME SCOREBOARD API
+SCOREBOARD_KEY_4x4 = "memory_scoreboard_4x4"
+SCOREBOARD_KEY_6x6 = "memory_scoreboard_6x6"
+
+@app.route('/api/memory/scoreboard/<grid_size>', methods=['GET'])
+def get_scoreboard(grid_size):
+    """Hae tulostaulu (top 10 nopeinta aikaa)."""
+    r = get_redis()
+    if not r:
+        return jsonify([])
+    
+    key = SCOREBOARD_KEY_4x4 if grid_size == "4x4" else SCOREBOARD_KEY_6x6
+    
+    try:
+        # Hae top 10 pienimmällä ajalla (zrange ascending)
+        scores = r.zrange(key, 0, 9, withscores=True)
+        result = []
+        for i, (data, time_score) in enumerate(scores):
+            entry = json.loads(data)
+            result.append({
+                "rank": i + 1,
+                "name": entry.get("name", "Tuntematon"),
+                "time": int(time_score),
+                "moves": entry.get("moves", 0),
+                "date": entry.get("date", "")
+            })
+        return jsonify(result)
+    except Exception as e:
+        return jsonify([])
+
+@app.route('/api/memory/scoreboard/<grid_size>', methods=['POST'])
+def add_to_scoreboard(grid_size):
+    """Lisää tulos tulostaululle."""
+    r = get_redis()
+    if not r:
+        return jsonify({"error": "Redis ei käytettävissä"}), 503
+    
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    time_seconds = data.get('time', 0)
+    moves = data.get('moves', 0)
+    
+    if not name:
+        return jsonify({"error": "Nimi vaaditaan"}), 400
+    if time_seconds <= 0:
+        return jsonify({"error": "Virheellinen aika"}), 400
+    
+    key = SCOREBOARD_KEY_4x4 if grid_size == "4x4" else SCOREBOARD_KEY_6x6
+    
+    try:
+        from datetime import datetime
+        entry = json.dumps({
+            "name": name[:20],  # Rajoita nimen pituus
+            "moves": moves,
+            "date": datetime.now().strftime("%d.%m.%Y")
+        })
+        # Käytä aikaa scorena (pienempi = parempi)
+        r.zadd(key, {entry: time_seconds})
+        
+        # Pidä vain top 50 tulosta
+        r.zremrangebyrank(key, 50, -1)
+        
+        # Tarkista sijoitus
+        rank = r.zrank(key, entry)
+        
+        return jsonify({
+            "status": "tallennettu",
+            "rank": rank + 1 if rank is not None else None
+        }), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # IMAGE API
 IMAGE_FORM = """
 <!DOCTYPE html>

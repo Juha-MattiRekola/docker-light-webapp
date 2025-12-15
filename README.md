@@ -433,6 +433,25 @@ docker system prune
 docker system prune -a --volumes
 ```
 
+### Projektin täydellinen poisto
+
+Poistaa kaikki tähän projektiin liittyvät resurssit (kontit, imaget, volyymit, verkot):
+
+```bash
+# 1. Pysäytä ja poista kontit + verkot + volyymit
+docker compose down -v --rmi local
+```
+```bash
+# 2. Poista myös ulkoiset base-imaget (postgres, redis, nginx jne.)
+docker compose down -v --rmi all
+```
+```bash
+# Tai poista projektin imaget manuaalisesti
+docker images | grep docker-light | awk '{print $3}' | xargs -r docker rmi -f
+```
+
+> **Huom:** `--rmi local` poistaa vain tässä projektissa rakennetut imaget (api, nginx). `--rmi all` poistaa myös ladatut base-imaget (postgres, redis, grafana jne.).
+
 ---
 
 ## Tiedostorakenne

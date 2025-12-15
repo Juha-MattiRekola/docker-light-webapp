@@ -143,6 +143,76 @@
             gap: 8px;
         }
         
+        /* Scoreboard */
+        .scoreboard-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .scoreboard-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-dim);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover { border-color: var(--accent); }
+        .tab-btn.active {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-color: var(--accent);
+        }
+        
+        .scoreboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .scoreboard-table th,
+        .scoreboard-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .scoreboard-table th {
+            color: var(--accent);
+            font-weight: 400;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .scoreboard-table td { color: var(--text-dim); }
+        .scoreboard-table td:first-child { color: var(--accent); font-weight: 600; }
+        .scoreboard-table td:nth-child(2) { color: var(--text); }
+        
+        .scoreboard-table tr:hover td { background: rgba(62, 207, 142, 0.05); }
+        
+        .rank-1 td:first-child { color: #ffd700; }
+        .rank-2 td:first-child { color: #c0c0c0; }
+        .rank-3 td:first-child { color: #cd7f32; }
+        
+        .empty-scoreboard {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+
         .win-modal {
             display: none;
             position: fixed;
@@ -234,6 +304,17 @@
                 
                 <div id="savesList" class="saves-list"></div>
             </div>
+            
+            <div class="scoreboard-section">
+                <h2 class="section-title">Tulostaulu</h2>
+                
+                <div class="scoreboard-tabs">
+                    <button class="tab-btn active" onclick="switchScoreboard('4x4')">4×4</button>
+                    <button class="tab-btn" onclick="switchScoreboard('6x6')">6×6</button>
+                </div>
+                
+                <div id="scoreboardContainer"></div>
+            </div>
         </div>
     </div>
     
@@ -241,7 +322,12 @@
         <div class="win-content">
             <h2>Voitit!</h2>
             <p id="winStats"></p>
-            <button class="btn" onclick="closeWinModal()">OK</button>
+            <form id="scoreForm" style="margin-bottom: 15px;">
+                <input type="text" id="playerName" placeholder="Nimesi tulostauluun..." 
+                       style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: var(--font-mono); font-size: 13px; margin-bottom: 10px;">
+                <button type="submit" class="btn" style="width: 100%;">Tallenna tulos</button>
+            </form>
+            <button class="btn-small" onclick="closeWinModal()" style="width: 100%;">Ohita</button>
         </div>
     </div>
     
@@ -257,11 +343,15 @@
         let timer = null;
         let seconds = 0;
         let locked = false;
+        let currentGridSize = '4x4';
+        let finalTime = 0;
+        let finalMoves = 0;
         
         function startGame(size = 16) {
             clearInterval(timer);
             const pairCount = size / 2;
             totalPairs = pairCount;
+            currentGridSize = size === 36 ? '6x6' : '4x4';
             const symbols = SYMBOLS.slice(0, pairCount);
             cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
             
@@ -341,13 +431,89 @@
         }
         
         function showWinModal() {
+            finalTime = seconds;
+            finalMoves = moves;
             document.getElementById('winStats').textContent = 
                 `${moves} siirtoa, aika ${formatTime(seconds)}`;
+            document.getElementById('playerName').value = '';
             document.getElementById('winModal').classList.add('show');
         }
         
         function closeWinModal() {
             document.getElementById('winModal').classList.remove('show');
+            loadScoreboard(currentGridSize);
+        }
+        
+        // Scoreboard
+        document.getElementById('scoreForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('playerName').value.trim();
+            if (!name) return;
+            
+            try {
+                const res = await fetch(`/api/memory/scoreboard/${currentGridSize}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, time: finalTime, moves: finalMoves })
+                });
+                const result = await res.json();
+                closeWinModal();
+                if (result.rank && result.rank <= 10) {
+                    alert(`Pääsit tulostauluun sijalle ${result.rank}!`);
+                }
+            } catch (error) {
+                console.error('Tuloksen tallennus epäonnistui:', error);
+            }
+        });
+        
+        async function loadScoreboard(gridSize) {
+            try {
+                const res = await fetch(`/api/memory/scoreboard/${gridSize}`);
+                const scores = await res.json();
+                renderScoreboard(scores);
+            } catch (error) {
+                document.getElementById('scoreboardContainer').innerHTML = 
+                    '<div class="empty-scoreboard">Ei tuloksia</div>';
+            }
+        }
+        
+        function renderScoreboard(scores) {
+            const container = document.getElementById('scoreboardContainer');
+            if (scores.length === 0) {
+                container.innerHTML = '<div class="empty-scoreboard">Ei tuloksia vielä. Pelaa ja voita!</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="scoreboard-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nimi</th>
+                            <th>Aika</th>
+                            <th>Siirrot</th>
+                            <th>Pvm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${scores.map(s => `
+                            <tr class="${s.rank <= 3 ? 'rank-' + s.rank : ''}">
+                                <td>${s.rank}</td>
+                                <td>${escapeHtml(s.name)}</td>
+                                <td>${formatTime(s.time)}</td>
+                                <td>${s.moves}</td>
+                                <td>${s.date}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function switchScoreboard(gridSize) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadScoreboard(gridSize);
         }
         
         // Redis-tallennus
@@ -456,6 +622,7 @@
         
         startGame(16);
         loadSaves();
+        loadScoreboard('4x4');
     </script>
 </body>
 </html>
