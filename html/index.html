@@ -313,7 +313,8 @@
             </div>
             
             <div class="footer">
-                <p>Valinnaiset lisäpalvelut:</p>
+                <p>Versio: <span id="appVersion">-</span></p>
+                <p style="margin-top: 8px;">Valinnaiset lisäpalvelut:</p>
                 <p style="margin-top: 8px;">
                     <a href="http://localhost:8080">Adminer</a> · 
                     <a href="http://localhost:9090">Prometheus</a> · 
@@ -325,12 +326,14 @@
     
     <script src="js/theme.js"></script>
     <script>
-        // Tarkista API:n tila
+        // Tarkista API:n tila ja hae versio
         async function checkAPI() {
             try {
-                const response = await fetch('/health');
+                const response = await fetch('/api/version');
                 if (response.ok) {
+                    const data = await response.json();
                     document.getElementById('apiStatus').textContent = 'online';
+                    document.getElementById('appVersion').textContent = data.version || '1.0.0';
                 } else {
                     throw new Error();
                 }
@@ -339,6 +342,7 @@
                 el.textContent = 'offline';
                 el.classList.remove('status-online');
                 el.style.color = '#ff5f57';
+                document.getElementById('appVersion').textContent = '-';
             }
         }
         checkAPI();

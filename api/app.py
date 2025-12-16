@@ -16,6 +16,7 @@ app = Flask(__name__)
 # Tietokanta- ja Redis-yhteydet ympäristömuuttujista
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres:postgres@db:5432/notes')
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379')
+APP_VERSION = os.environ.get('APP_VERSION', '1.0.0')
 
 # Redis-yhteys (lazy loading)
 redis_client = None
@@ -75,6 +76,12 @@ def invalidate_cache():
 @app.route('/health')
 def health():
     return "OK", 200
+
+# VERSION
+@app.route('/version')
+def version():
+    """Palauta sovelluksen versio."""
+    return jsonify({"version": APP_VERSION})
 
 # METRICS (Prometheus)
 @app.route('/metrics')

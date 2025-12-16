@@ -12,7 +12,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">docker-compose ~ terminal</span>
+            <span class="terminal-title">docker-compose ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -20,12 +20,21 @@
             <a href="index.html" class="back-link">takaisin</a>
             
             <h1>Docker Compose</h1>
-            <p class="subtitle">Monisäiliösovelluksen määrittely ja hallinta</p>
+            <p class="subtitle" style="white-space: pre-line;">Docker Compose mahdollistaa järkevän useamman kontin sovelluksen määrittelyn ja hallinnan.
+                Compose on erillinen työkalu, jonka avulla määritellään ja ajetaan monikonttisovelluksia helposti yhdestä tiedostosta.
+                Konfigurointitiedosto on nimeltään <code>docker-compose.yaml</code>, ja se on kirjoitettu YAML-muodossa.
+                
+                Compose toimii kaikissa ympäristöissä, joissa Docker toimii, kuten paikallisessa kehityksessä, testauksessa ja tuotannossa.
+                On mahdollista, että Docker Compose täytyy asentaa erikseen Dockerin lisäksi.
+                Asennus hoituu eri ympäristöissä eri tavoin, tarkemmat ohjeet löytyvät Dockerin virallisesta <a href="https://docs.docker.com/compose/install/">dokumentaatiosta</a>.
+            </p>
             
             <h2 class="section-title">Miksi Compose?</h2>
-            <p>
-                Docker Compose mahdollistaa usean kontin sovelluksen määrittelyn yhdessä 
-                YAML-tiedostossa. Yksi komento käynnistää kaikki palvelut oikeassa järjestyksessä.
+            <p style="white-space: pre-line;">Docker Compose mahdollistaa usean kontin sovelluksen määrittelyn yhdessä YAML-tiedostossa.
+                Yksi komento käynnistää kaikki palvelut oikeassa järjestyksessä!
+                On hienoa, että Compose hoitaa verkot ja volumet automaattisesti mikäli niin halutaan.
+                Lisäksi Compose helpottaa ympäristömuuttujien hallintaa ja tekee sovelluksen skaalauksesta helppoa.
+                Composen avulla voi ajaa omia imageja tai käyttää valmiita imageja esimerkiksi Docker Hubista.
             </p>
             
             <h2 class="section-title">Esimerkki docker-compose.yaml</h2>
@@ -66,7 +75,7 @@ volumes:
   pg_data:
   redis_data:</code></pre>
             
-            <h2 class="section-title">Komennot</h2>
+            <h2 class="section-title">Komennot Composelle</h2>
             
             <table class="data-table">
                 <thead>
@@ -104,6 +113,42 @@ volumes:
                         <td><code>docker compose exec palvelu sh</code></td>
                         <td>Avaa shell tiettyyn konttiin</td>
                     </tr>
+                    <tr>
+                        <td><code>docker compose pull</code></td>
+                        <td>Lataa uusimmat imaget rekisteristä (esim. Docker Hub) ennen käynnistystä</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose stop</code></td>
+                        <td>Pysäyttää palvelut, mutta ei poista kontteja (toisin kuin down)</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose start</code></td>
+                        <td>Käynnistää jo olemassa olevat, pysäytetyt kontit uudelleen ilman rebuildia</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose rm</code></td>
+                        <td>Poistaa pysäytetyt kontit, mutta jättää imaget ja volumet</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose config</code></td>
+                        <td>Näyttää yhdistetyn Compose-konfiguraation (hyvä debugaukseen ja tarkistukseen)</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose top</code></td>
+                        <td>Näyttää prosessit, jotka pyörivät Compose-palveluiden sisällä</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose events</code></td>
+                        <td>Seuraa Compose-palveluiden tapahtumia reaaliajassa (hyödyllinen monitorointiin)</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose pause</code></td>
+                        <td>Keskeyttää palvelut (prosessit jäädytetään)</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker compose unpause</code></td>
+                        <td>Jatkaa keskeytettyjen palveluiden suoritusta</td>
+                    </tr>
                 </tbody>
             </table>
             
@@ -111,11 +156,23 @@ volumes:
             
             <ul>
                 <li><strong>depends_on</strong> – käynnistysjärjestys (ei odota valmiutta)</li>
+                <li><strong>depends_on + condition</strong> – yhdistettynä healthcheckin kanssa palvelu odottaa toisen olevan terve</li>
                 <li><strong>healthcheck</strong> – tarkistaa palvelun toimivuuden</li>
                 <li><strong>networks</strong> – eristää palvelut omiin verkkoihin</li>
-                <li><strong>volumes</strong> – nimetyt volumet pysyvään dataan</li>
+                <li><strong>volumes</strong> – nimetyt volumet pysyvään datan säilöntään</li>
                 <li><strong>build context</strong> – mistä Dockerfile löytyy</li>
                 <li><strong>environment</strong> – ympäristömuuttujat konttiin</li>
+                <li><strong>ports</strong> – porttien mappaus isännän ja kontin välillä (esim. 8080:80)</li>
+                <li><strong>restart</strong> – uudelleenkäynnistyspolitiikka (always, on-failure, unless-stopped)</li>
+                <li><strong>command</strong> – ylikirjoittaa kontin oletuskomennon</li>
+                <li><strong>entrypoint</strong> – määrittää kontin käynnistyksen aloituspisteen</li>
+                <li><strong>secrets</strong> – turvallinen tapa hallita salaisuuksia (API-avaimet, salasanat)</li>
+                <li><strong>configs</strong> – konfiguraatiotiedostojen hallinta (erityisesti Swarmissa)</li>
+                <li><strong>tmpfs</strong> – mounttaa hakemiston muistiin (RAM), ei levyyn</li>
+                <li><strong>extra_hosts</strong> – lisää mukautettuja host-nimiä / IP-osoitteita konttiin</li>
+                <li><strong>profiles</strong> – eri palvelujen käynnistäminen eri ympäristöissä (dev vs. prod)</li>
+                <li><strong>scale</strong> – käynnistää useita instansseja samasta palvelusta (Compose v2)</li>
+                <li><strong>labels</strong> – metatietoja palveluille (orkestrointi, monitorointi)</li>
             </ul>
             
             <h2 class="section-title">Healthcheck-esimerkki</h2>
