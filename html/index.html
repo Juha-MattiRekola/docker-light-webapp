@@ -33,14 +33,14 @@
         }
         .intro h1 {
             color: var(--text);
-            font-size: 1.5em;
+            font-size: 1.7em;
             font-weight: 400;
             margin-bottom: 10px;
         }
         .intro h1::before { content: none; }
         .intro p {
             color: var(--text-dim);
-            font-size: 14px;
+            font-size: 18px;
         }
         
         .nav-section {
@@ -61,7 +61,7 @@
             border-radius: 6px;
             color: var(--text);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 18px;
             transition: all 0.2s;
         }
         .nav-link:hover {
@@ -75,7 +75,7 @@
         .nav-link span {
             display: block;
             color: var(--text-dim);
-            font-size: 11px;
+            font-size: 15px;
             margin-top: 5px;
         }
         
@@ -99,16 +99,16 @@
         }
         .service-name {
             color: var(--accent);
-            font-size: 14px;
+            font-size: 18px;
             margin-bottom: 8px;
         }
         .service-desc {
             color: var(--text-dim);
-            font-size: 12px;
+            font-size: 16px;
         }
         .service-port {
             color: var(--text-dim);
-            font-size: 11px;
+            font-size: 14px;
             margin-top: 10px;
             opacity: 0.7;
         }
@@ -125,7 +125,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            font-size: 13px;
+            font-size: 17px;
         }
         .status-row:not(:last-child) {
             border-bottom: 1px solid var(--border);
@@ -154,7 +154,7 @@
             padding-top: 20px;
             border-top: 1px solid var(--border);
             color: var(--text-dim);
-            font-size: 12px;
+            font-size: 15px;
             text-align: center;
         }
         .footer a {
@@ -180,7 +180,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">docker-mikropalvelut ~ terminal</span>
+            <span class="terminal-title">docker-mikropalvelut ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -196,10 +196,42 @@
             
             <div class="intro">
                 <p class="prompt typing">Mikropalveluarkkitehtuuri Docker Composella</p>
-                <p style="margin-top: 15px;">
+                <p style="margin-top: 15px; white-space: pre-line;">
                     Kevyt demonstraatioprojekti, joka esittelee modernin konttipohjaisen 
-                    arkkitehtuurin. 8 palvelua, yksi verkko.
+                    arkkitehtuurin. 8 kuvaa, 8 palvelua, yksi verkko.
+
+                    <b>DOCKER-TIETOA</b>-valikossa on pienimuotoisesti tietoutta Dockerista ja siihen liittyvistä konsepteista. 
+                    Näihin ominaisuuksiin lukeutuvat <b>Docker-perusteet, Docker-arkkitehtuuri</b> ja <b>Docker Compose.</b>
+
+                    <b>NAVIGOI</b>-valikossa on taasen kolme pientä esimerkkisovellusta:
+
+                    <b>Muistiinpanot</b>-osiossa voit tehdä otsikoituja ja päivämäärämerkittyjä muistiinpanoja, muokkausominaisuuksilla höystettynä.
+
+                    <b>Muistipeli</b> on yksinkertainen selainpohjainen peli, joka tallentaa pisteesi tietokantaan. Pelin voi myös tallentaa niin halutessaan.
+
+                    <b>Kuvatyökalu</b> tarjoaa tavan demonstroida pikseleiden roolia kuvankäsittelyssä.
+                    Yksinkertaisessa sovelluksessa pystyy muokkaamaan omavalintaisen kuvan pikseleiden näkyvyyttä.
+
+                    <b>PALVELUT</b>-osiossa on lista käynnissä olevista Docker-konteista, niiden rooleista ja porteista.
                 </p>
+            </div>
+            
+            <div class="nav-section">
+                <div class="section-title">Docker-tietoa</div>
+                <div class="nav-grid">
+                    <a href="arkkitehtuuri.html" class="nav-link">
+                        docker-arkkitehtuuri
+                        <span>Tämän esimerkkisovelluksen tekninen dokumentaatio</span>
+                    </a>
+                    <a href="docker.html" class="nav-link">
+                        docker-perusteet
+                        <span>Dockerin peruskäsitteet ja peruskomennot</span>
+                    </a>
+                    <a href="compose.html" class="nav-link">
+                        docker-compose
+                        <span>Useamman kontin orkestrointi Dockerissa</span>
+                    </a>
+                </div>
             </div>
             
             <div class="nav-section">
@@ -207,27 +239,15 @@
                 <div class="nav-grid">
                     <a href="notes.html" class="nav-link">
                         muistiinpanot
-                        <span>CRUD-toiminnot PostgreSQL + Redis</span>
+                        <span>Tee hyvin säilyviä muistiinpanoja</span>
                     </a>
                     <a href="muistipeli.html" class="nav-link">
                         muistipeli
-                        <span>Interaktiivinen peli tallennuksella</span>
+                        <span>Interaktiivinen peli tallennuksella. Klassikko</span>
                     </a>
                     <a href="/api/image" class="nav-link">
                         kuvatyökalu
-                        <span>Pikseliefekti kuvankäsittely</span>
-                    </a>
-                    <a href="arkkitehtuuri.html" class="nav-link">
-                        arkkitehtuuri
-                        <span>Tekninen dokumentaatio</span>
-                    </a>
-                    <a href="docker.html" class="nav-link">
-                        docker-perusteet
-                        <span>Peruskäsitteet ja komennot</span>
-                    </a>
-                    <a href="compose.html" class="nav-link">
-                        docker-compose
-                        <span>Monikontti-orkestrointi</span>
+                        <span>Säädä valitsemasi kuvan pikselimäärää</span>
                     </a>
                 </div>
             </div>
@@ -236,43 +256,43 @@
             <div class="services-grid">
                 <div class="service-card">
                     <div class="service-name">nginx</div>
-                    <div class="service-desc">Reverse proxy ja staattinen sisältö</div>
+                    <div class="service-desc">Reverse proxy ja sivuston staattinen sisältö</div>
                     <div class="service-port">:80</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">flask-api</div>
-                    <div class="service-desc">Python REST API</div>
-                    <div class="service-port">:5000 (internal)</div>
+                    <div class="service-desc">Python REST API, sovelluksen logiikka</div>
+                    <div class="service-port">:5000 (sisäinen)</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">postgresql</div>
-                    <div class="service-desc">Tietokanta pysyvällä tallennuksella</div>
-                    <div class="service-port">:5432 (internal)</div>
+                    <div class="service-desc">Tietokanta, johon sivuston dataa talletetaan</div>
+                    <div class="service-port">:5432 (sisäinen)</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">redis</div>
-                    <div class="service-desc">Välimuisti API-kyselyille</div>
-                    <div class="service-port">:6379 (internal)</div>
+                    <div class="service-desc">Välimuisti API-kyselyille, nopeuttaa vasteaikoja</div>
+                    <div class="service-port">:6379 (sisäinen)</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">adminer</div>
-                    <div class="service-desc">Tietokannan hallintapaneeli</div>
+                    <div class="service-desc">Tietokannan hallintapaneeli selaimessa</div>
                     <div class="service-port">:8080</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">prometheus</div>
-                    <div class="service-desc">Metriikoiden keruu</div>
+                    <div class="service-desc">Metriikoiden keruu ja tallennus</div>
                     <div class="service-port">:9090</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">grafana</div>
-                    <div class="service-desc">Monitoroinnin visualisointi</div>
+                    <div class="service-desc">Monitoroinnin visualisointi selaimessa</div>
                     <div class="service-port">:3000</div>
                 </div>
                 <div class="service-card">
                     <div class="service-name">cloudflared</div>
-                    <div class="service-desc">Tunneli julkiseen verkkoon</div>
-                    <div class="service-port">tunnel</div>
+                    <div class="service-desc">Tunneli julkiseen verkkoon, tuo todentuntua selaimessa</div>
+                    <div class="service-port">tunneli</div>
                 </div>
             </div>
             
@@ -293,7 +313,7 @@
             </div>
             
             <div class="footer">
-                <p>docker compose up -d</p>
+                <p>Valinnaiset lisäpalvelut:</p>
                 <p style="margin-top: 8px;">
                     <a href="http://localhost:8080">Adminer</a> · 
                     <a href="http://localhost:9090">Prometheus</a> · 

@@ -12,7 +12,7 @@
             border: 1px solid var(--border);
             border-radius: 6px;
             padding: 25px;
-            font-size: 11px;
+            font-size: 14px;
             overflow-x: auto;
             white-space: pre;
             line-height: 1.4;
@@ -41,7 +41,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 600;
             flex-shrink: 0;
         }
@@ -50,14 +50,14 @@
             color: var(--text);
             font-weight: 400;
             margin-bottom: 5px;
-            font-size: 14px;
+            font-size: 18px;
         }
         
         .flow-content h4::before { content: none; }
         
         .flow-content p {
             color: var(--text-dim);
-            font-size: 12px;
+            font-size: 16px;
             margin: 0;
         }
         
@@ -81,13 +81,13 @@
         
         .tech-name {
             color: var(--accent);
-            font-size: 13px;
+            font-size: 17px;
             margin-bottom: 5px;
         }
         
         .tech-role {
             color: var(--text-dim);
-            font-size: 11px;
+            font-size: 15px;
         }
     </style>
 </head>
@@ -97,7 +97,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">arkkitehtuuri ~ terminal</span>
+            <span class="terminal-title">arkkitehtuuri ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -105,78 +105,89 @@
             <a href="index.html" class="back-link">takaisin</a>
             
             <h1>Järjestelmäarkkitehtuuri</h1>
-            <p class="subtitle">Mikropalveluiden rakenne ja vuorovaikutus</p>
+            <p class="subtitle" style="white-space: pre-line;">Mikropalveluiden rakenne ja vuorovaikutus on kevyesti selvennettynä tällä sivulla.
+
+                <b>KOKONAISARKKITEHTUURI</b> pyrkii kuvaamaan tämän kevyen esimerkkisovelluksen rakenteen kaavion avulla.
+
+                <b>TEKNOLOGIAT</b> osiossa on listattu käytetyt työkalut ja niiden roolit järjestelmässä.
+
+                <b>PYYNTÖJEN KULKU</b> osiossa käydään läpi, miten käyttäjän tekemä pyyntö etenee järjestelmässä.
+            </p>
             
             <h2 class="section-title">Kokonaisarkkitehtuuri</h2>
             
             <div class="arch-diagram">
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  <span style="color: var(--accent);">INTERNET</span>                                                                   │
-│      │                                                                      │
-│      ▼                                                                      │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  <span style="color: var(--accent);">INTERNET</span>                                                                    │
+│      │                                                                       │
+│      ▼                                                                       │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
 │  │  <span style="color: var(--accent);">Cloudflare Tunnel</span>                                                     │  │
-│  │  Julkinen pääsy ilman porttien avaamista                              │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│      │                                                                      │
-│      ▼                                                                      │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │  <span style="color: var(--accent);">NGINX</span> (Reverse Proxy)                                      :80      │  │
-│  │  ├── /           → Static HTML                                        │  │
-│  │  ├── /api/*      → Flask API                                          │  │
-│  │  ├── /adminer    → Adminer                                            │  │
-│  │  ├── /prometheus → Prometheus                                         │  │
-│  │  └── /grafana    → Grafana                                            │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│      │                                                                      │
-│      ▼                                                                      │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │  <span style="color: var(--accent);">Flask API</span>                                                   :5000    │  │
-│  │  REST-rajapinta, kuvankäsittely, metriikat                            │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-│      │                          │                                           │
-│      ▼                          ▼                                           │
-│  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────────────┐ │
-│  │  <span style="color: var(--accent);">PostgreSQL</span>      │   │  <span style="color: var(--accent);">Redis</span>           │   │  <span style="color: var(--accent);">Prometheus</span> → <span style="color: var(--accent);">Grafana</span>  │ │
-│  │  :5432           │   │  :6379           │   │  :9090      :3000        │ │
-│  │  Pysyvä data     │   │  Välimuisti      │   │  Metriikat  Visualisointi│ │
-│  └──────────────────┘   └──────────────────┘   └──────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────────────┘</div>
+│  │  Julkinen pääsy ilman porttien avaamista                               │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│      │                                                                       │
+│      ▼                                                                       │
+│  ┌────────────────────────────────────────────────────────────────────────┐  │
+│  │  <span style="color: var(--accent);">NGINX</span> (Reverse Proxy)                                        :80      │  │
+│  │  ├── /            → Static HTML                                        │  │
+│  │  ├── /api/*       → Flask API                                          │  │
+│  │  ├── /adminer     → Adminer                                            │  │
+│  │  ├── /prometheus  → Prometheus                                         │  │
+│  │  └── /grafana     → Grafana                                            │  │
+│  └────────────────────────────────────────────────────────────────────────┘  │
+│      │                                                                       │
+│      ├──────────────────┬──────────────────┬──────────────────┐              │
+│      ▼                  ▼                  ▼                  ▼              │
+│  ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐           │
+│  │ <span style="color: var(--accent);">Flask API</span>  │   │ <span style="color: var(--accent);">Adminer</span>    │   │ <span style="color: var(--accent);">Prometheus</span> │   │ <span style="color: var(--accent);">Grafana</span>    │           │
+│  │ :5000      │   │ :8080      │   │ :9090      │   │ :3000      │           │
+│  │ REST API   │   │DB Hallinta │   │ Metriikat  │   │ Dashboardit│           │
+│  └────────────┘   └────────────┘   └────────────┘   └────────────┘           │
+│      │                  │                  ▲              │                  │
+│      │                  │                  │ scrape       │                  │
+│      ├──────────────────┤                  │              │                  │
+│      ▼                  ▼                  │              ▼                  │
+│  ┌────────────┐   ┌────────────┐           │        ┌────────────┐           │
+│  │ <span style="color: var(--accent);">PostgreSQL</span> │   │ <span style="color: var(--accent);">Redis</span>      │    ───────┘        │ Prometheus │           │
+│  │ :5432      │   │ :6379      │   (API:sta)        │(datalähde) │           │
+│  │ Pysyvä data│   │ Välimuisti │                    └────────────┘           │
+│  └────────────┘   └────────────┘                                             │
+└──────────────────────────────────────────────────────────────────────────────┘</div>
             
             <h2 class="section-title">Teknologiat</h2>
             
             <div class="tech-grid">
                 <div class="tech-item">
                     <div class="tech-name">NGINX</div>
-                    <div class="tech-role">Reverse Proxy</div>
+                    <div class="tech-role">Välityspalvelin, staattisten sivujen palvelin</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Flask</div>
-                    <div class="tech-role">REST API</div>
+                    <div class="tech-role">REST API, sovelluslogiikka web-sovelluskehyksen avulla</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">PostgreSQL</div>
-                    <div class="tech-role">Tietokanta</div>
+                    <div class="tech-role">Tietokanta, yhdistetty volyymiin pysyvyyden takaamiseksi</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Redis</div>
-                    <div class="tech-role">Cache</div>
+                    <div class="tech-role">Välimuisti nopeuttamaan sivustoa</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Prometheus</div>
-                    <div class="tech-role">Metriikat</div>
+                    <div class="tech-role">Metriikoiden keruu, suorituskyvyn seuranta</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Grafana</div>
-                    <div class="tech-role">Dashboardit</div>
+                    <div class="tech-role">Prometheuksen keräämien metriikoiden visualisointi</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Adminer</div>
-                    <div class="tech-role">DB Admin</div>
+                    <div class="tech-role">Tietokannan graafinen hallinta</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-name">Cloudflared</div>
-                    <div class="tech-role">Tunneli</div>
+                    <div class="tech-role">Tunneli julkiseen verkkoon</div>
                 </div>
             </div>
             
@@ -187,13 +198,13 @@
                     <div class="flow-num">1</div>
                     <div class="flow-content">
                         <h4>Käyttäjä tekee pyynnön</h4>
-                        <p>Selain lähettää HTTP-pyynnön julkiseen URL:iin tai localhost:80</p>
+                        <p>Selain lähettää HTTP-pyynnön julkiseen URL:iin tai paikallisesti suuntaan localhost:80</p>
                     </div>
                 </div>
                 <div class="flow-step">
                     <div class="flow-num">2</div>
                     <div class="flow-content">
-                        <h4>Cloudflare Tunnel välittää</h4>
+                        <h4>Cloudflare tunneli välittää</h4>
                         <p>Julkiset pyynnöt reititetään turvallisesti ilman avoimia portteja</p>
                     </div>
                 </div>
@@ -201,14 +212,14 @@
                     <div class="flow-num">3</div>
                     <div class="flow-content">
                         <h4>NGINX reitittää pyynnön</h4>
-                        <p>Reverse proxy ohjaa oikealle palvelulle polun perusteella</p>
+                        <p>Välityspalvelin ohjaa oikealle palvelulle polun perusteella</p>
                     </div>
                 </div>
                 <div class="flow-step">
                     <div class="flow-num">4</div>
                     <div class="flow-content">
                         <h4>API käsittelee</h4>
-                        <p>Flask-sovellus tarkistaa Redis-cachen ja tekee tietokantakyselyt</p>
+                        <p>Flask-sovellus tarkistaa Redis-välimuistin ja tekee tietokantakyselyt</p>
                     </div>
                 </div>
                 <div class="flow-step">
@@ -220,9 +231,16 @@
                 </div>
             </div>
             
-            <div class="info-box">
+            <div class="info-box" style="white-space: pre-line;">
                 <strong>Miksi mikropalvelut?</strong> Jokainen palvelu voidaan skaalata, päivittää 
                 ja kehittää itsenäisesti. Vikatilanteessa vain yksi osa järjestelmästä kaatuu.
+                
+                Kontit ovat pieniä ja rajattuja kokonaisuuksia.
+                Tästä johtuen niistä on myös helpompaa löytää mahdollisia vikoja ja pullonkauloja.
+                Lisäksi kontit ovat kevyitä ja nopeita käynnistää, ne ovat helposti siirrettävissä
+                eri ympäristöjen välillä.
+                
+                Pilvipalvelutkin tukevat kontteja laajasti.
             </div>
         </div>
     </div>

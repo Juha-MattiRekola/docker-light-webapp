@@ -12,7 +12,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">docker-basics ~ terminal</span>
+            <span class="terminal-title">docker-basics ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -20,37 +20,68 @@
             <a href="index.html" class="back-link">takaisin</a>
             
             <h1>Docker-perusteet</h1>
-            <p class="subtitle">Konttiteknologian ydinkonseptit ja käyttö</p>
+            <p class="subtitle" style="white-space: pre-line;">Konttiteknologian ydinkonseptit ja käyttö setvitään lyhyesti tällä sivulla.
+                Aivan aluksi muistellaan <b>MIKÄ ON DOCKER</b>-osiossa, mikä Docker oikein olikaan.
+                
+                Seuraavaksi tutustutaan Dockerfileen <b>DOCKERFILE</b>-osiossa,
+                kertomalla mikä se oikein on, ja antamalla esimerkki moisesta tiedostosta.
+
+                Tämän jälkeen käydään läpi hyödyllisimpiä Docker-komentoja <b>PERUSKOMENNOT</b>-osiossa, joita tarvitaan
+                peruskäytössä.
+                
+                Lopuksi <b>VERKOT JA VOLUMET</b>-osiossa käsitellään verkkoja ja volumeja, jotka ovat tärkeitä
+                konttien välisessä kommunikoinnissa ja datan säilytyksessä.
+
+                No okei, aivan lopuksi vielä muutama hyödyllinen vinkki. Nämähän tietenkin ovat pahnan pohjimmaisena, osiossa <b>HYÖDYLLISIÄ VINKKEJÄ</b>.
+            </p>
             
             <h2 class="section-title">Mikä on Docker?</h2>
-            <p>
-                Docker on konttiteknologia, joka paketoi sovelluksen ja sen riippuvuudet 
-                yhteen siirrettävään yksikköön. Kontit jakavat isäntäkoneen käyttöjärjestelmän 
-                ytimen, mikä tekee niistä kevyempiä kuin perinteiset virtuaalikoneet.
+            <p style="white-space: pre-line;">
+                Docker on konttiteknologia, joka paketoi sovelluksen ja sen riippuvuudet
+                yhteen siirrettävään ja itsenäisesti ajettavaan yksikköön. Kontit jakavat isäntäkoneen käyttöjärjestelmän ytimen, mikä tekee niistä kevyempiä kuin perinteiset virtuaalikoneet.
+
+                Tarkemmin sanottuna Docker on työkalu, joka pakkaa sovelluksen ja sen tarvitsemat osat (kirjastot, asetukset, riippuvuudet) yhteen konttiin.
+                Kontti on mahdollista saada oikein käytettynä todella resurssitehokkaaksi, sillä siihen voidaan sisällyttää ainoastaan kulloisessakin sovelluksessa tarvittavat osat.
+
+                Dockeria voi kuvailla arkisemmin vaikkapa seuraavalla tavalla:                               
+                
+                Ajattele, että haluat lähettää reseptin ystävällesi ruuanlaittoa varten.
+                <ul class="icon-list">
+                    <li><span class="dot"></span> Jos lähetät vain reseptin, ystävän pitää itse hankkia ainekset ja välineet → hommat voivat mennä pieleen.</li>
+                    <li><span class="dot"></span> Jos lähetät koko paketin (resepti + ainekset + välineet), ystävä voi valmistaa ruoan täsmälleen samalla tavalla → onnistuu varmasti.</li>
+                </ul>
+                <p>Docker tekee saman ohjelmille: se varmistaa, että sovellus toimii samalla tavalla riippumatta siitä, missä ympäristössä se ajetaan.</p>
             </p>
             
             <div class="info-box">
-                <strong>Huom:</strong> Kontit vs. virtuaalikoneet – kontit käynnistyvät sekunneissa, 
+                <strong>Mietinnän paikka:</strong> Kontit vs. virtuaalikoneet – kontit käynnistyvät sekunneissa, 
                 VM:t minuuteissa.
             </div>
             
             <h2 class="section-title">Dockerfile</h2>
-            <p>Dockerfile on resepti, joka kertoo miten kontti-image rakennetaan:</p>
+            <p style="white-space: pre-line;">Jatketaan reseptiaiheella. Dockerfile on resepti, joka kertoo miten kontti-image rakennetaan.
+                Imagen avulla taas voidaan ajaa konttia tai kontteja, mikäli niitä satutaan tarvitsemaan useampia.
+                Kannattaa huomata, että muodostuvat kontit ovat aina samanlaisia, mikäli Dockerfilea ei muokata.
+                Esimerkki Dockerfilestä:
+            </p>
             
-            <pre><code><span class="code-comment"># Käytä Python-baseimageä</span>
+            <pre><code><span class="code-comment">
+# Vaihe 1. Käytä Python-base imagea.
+# Hae se Docker Hubista, mikäli sitä ei paikallisesti ole saatavilla.</span>
 FROM python:3.12-alpine
 
-<span class="code-comment"># Aseta työkansio</span>
+<span class="code-comment"># Vaihe 2. Aseta työkansio, toisin sanoen siirry tähän hakemistoon.</span>
 WORKDIR /app
 
-<span class="code-comment"># Kopioi riippuvuudet ensin (cache-optimointi)</span>
+<span class="code-comment"># Vaihe 3. Kopioi kaikki riippuvuudet tekstitiedostosta "requirements.txt" (cache-optimointi)</span>
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-<span class="code-comment"># Kopioi sovellus</span>
+<span class="code-comment"># Vaihe 4. Kopioi sovellus host-koneelta kontin työhakemistoon</span>
 COPY . .
 
-<span class="code-comment"># Avaa portti ja käynnistä</span>
+<span class="code-comment"># Vaihe 5. Ilmoitetaan käytettävä portti ja käynnistetään sovellus.
+# Ajetaan python ja käynnistetään tiedosto "app.py"</span>
 EXPOSE 5000
 CMD ["python", "app.py"]</code></pre>
             
@@ -104,8 +135,12 @@ CMD ["python", "app.py"]</code></pre>
             <ul>
                 <li><strong>Bridge-verkko</strong> – oletusverkko, kontit voivat kommunikoida nimillä</li>
                 <li><strong>Host-verkko</strong> – kontti käyttää isännän verkkorajapintaa suoraan</li>
-                <li><strong>Volumet</strong> – pysyvä tallennustila, säilyy kontin poiston jälkeen</li>
-                <li><strong>Bind mounts</strong> – isännän kansio liitetty konttiin</li>
+                <li><strong>Overlay-verkko</strong> – käytetään Docker Swarmissa tai orkestroinnissa. Mahdollistaa konttien välisen kommunikoinnin useiden hostien yli</li>
+                <li><strong>Macvlan-verkko</strong> – antaa kontille oman MAC-osoitteen ja IP:n, jolloin se näkyy verkossa kuin fyysinen laite</li>
+                <li><strong>None-verkko</strong> – kontilla ei ole verkkoa lainkaan (täydellinen eristys)</li>
+                <li><strong>Volumet</strong> – pysyvä tallennustila, säilyy kontin poiston jälkeen. Volumet sijaitsevat Dockerin hallinnoimassa hakemistossa</li>
+                <li><strong>Bind mounts</strong> – isännän kansio liitetty konttiin. Ei Dockerin hallinnoima</li>
+                <li><strong>tmpfs mount</strong> – tallennus vain muistiin (RAM), ei levyyn. Nopeaa, mutta katoaa kontin pysäytyksen jälkeen</li>
             </ul>
             
             <h2 class="section-title">Hyödyllisiä vinkkejä</h2>
@@ -118,6 +153,26 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html</code></pre>
+            </div>
+            
+            <div class="card card-accent" style="margin-top: 15px;">
+                <p><strong>Älä tallenna salaisuuksia imageen</strong></p>
+                <p style="margin-top: 8px;">Salasanat, API-avaimet ja muut arkaluontoiset tiedot kuuluvat ympäristömuuttujiin tai Docker secretseihin, ei koskaan Dockerfileen tai imageen.</p>
+            </div>
+            
+            <div class="card card-accent" style="margin-top: 15px;">
+                <p><strong>Käytä .dockerignore-tiedostoa</strong></p>
+                <p style="margin-top: 8px;">Estä turhien tiedostojen (node_modules, .git, .env) kopioituminen imageen. Tämä nopeuttaa buildeja ja pienentää imagea.</p>
+            </div>
+            
+            <div class="card card-accent" style="margin-top: 15px;">
+                <p><strong>Tarkista konttiesi tila säännöllisesti</strong></p>
+                <p style="margin-top: 8px;"><code>docker system df</code> näyttää kuinka paljon tilaa imaget, kontit ja volumet vievät. <code>docker system prune</code> siivoaa käyttämättömät resurssit.</p>
+            </div>
+            
+            <div class="card card-accent" style="margin-top: 15px;">
+                <p><strong>Alpine-imaget ovat pieniä</strong></p>
+                <p style="margin-top: 8px;">Suosi <code>:alpine</code>-tagattuja base imageja (esim. <code>python:3.12-alpine</code>). Ne ovat usein merkittävästi pienempiä kuin täydet imaget.</p>
             </div>
         </div>
     </div>
