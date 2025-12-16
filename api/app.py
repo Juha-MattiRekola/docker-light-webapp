@@ -395,7 +395,7 @@ IMAGE_FORM = """
             flex: 1;
             text-align: center;
             color: var(--text-dim);
-            font-size: 13px;
+            font-size: 16px;
         }
         
         .theme-toggle {
@@ -405,7 +405,7 @@ IMAGE_FORM = """
             padding: 6px 10px;
             color: var(--text-dim);
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -427,13 +427,13 @@ IMAGE_FORM = """
             margin-bottom: 25px;
             color: var(--accent);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 18px;
         }
         .back-link:hover { text-decoration: underline; }
         .back-link::before { content: '< '; }
         
         h1 {
-            font-size: 1.4em;
+            font-size: 1.8em;
             font-weight: 400;
             color: var(--text);
             margin-bottom: 10px;
@@ -443,7 +443,7 @@ IMAGE_FORM = """
         
         .subtitle {
             color: var(--text-dim);
-            font-size: 13px;
+            font-size: 18px;
             text-align: center;
             margin-bottom: 25px;
             padding-bottom: 20px;
@@ -457,7 +457,7 @@ IMAGE_FORM = """
             padding: 15px 20px;
             border-radius: 0 6px 6px 0;
             margin-bottom: 25px;
-            font-size: 13px;
+            font-size: 17px;
             color: var(--text-dim);
             transition: background 0.3s, border-color 0.3s;
         }
@@ -472,7 +472,7 @@ IMAGE_FORM = """
         label {
             display: block;
             color: var(--accent);
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 10px;
@@ -487,7 +487,7 @@ IMAGE_FORM = """
             border-radius: 6px;
             color: var(--text-dim);
             font-family: var(--font-mono);
-            font-size: 13px;
+            font-size: 16px;
             cursor: pointer;
             transition: border-color 0.2s;
         }
@@ -532,7 +532,7 @@ IMAGE_FORM = """
             border: none;
             border-radius: 6px;
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.2s, transform 0.2s;
@@ -548,7 +548,7 @@ IMAGE_FORM = """
             margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid var(--border);
-            font-size: 12px;
+            font-size: 15px;
             color: var(--text-dim);
         }
         .example { text-align: center; }
