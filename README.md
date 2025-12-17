@@ -46,12 +46,15 @@ cd docker-light-webapp
 
 Sovellus toimii ilman .env-tiedostoa, mutta voit luoda sen mukauttamista varten:
 
+**Linux/Mac**
+
 ```bash
-# Linux/Mac
 cp .env.example .env
 ```
+
+**Windows (PowerShell)**
+
 ```bash
-# Windows (PowerShell)
 Copy-Item .env.example .env
 ```
 
