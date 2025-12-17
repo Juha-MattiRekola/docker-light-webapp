@@ -63,6 +63,17 @@ def init_db(max_retries=30, delay=1):
                     END IF;
                 END $$;
             """)
+            # Muistipelin tulostaulu
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS scoreboard (
+                    id SERIAL PRIMARY KEY,
+                    grid_size VARCHAR(10) NOT NULL,
+                    name VARCHAR(20) NOT NULL,
+                    time_seconds INTEGER NOT NULL,
+                    moves INTEGER NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
             conn.commit()
             cur.close()
             conn.close()
@@ -269,32 +280,35 @@ def memory_delete(name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# MEMORY GAME SCOREBOARD API
-SCOREBOARD_KEY_4x4 = "memory_scoreboard_4x4"
-SCOREBOARD_KEY_6x6 = "memory_scoreboard_6x6"
-
+# MEMORY GAME SCOREBOARD API (PostgreSQL)
 @app.route('/api/memory/scoreboard/<grid_size>', methods=['GET'])
 def get_scoreboard(grid_size):
     """Hae tulostaulu (top 10 nopeinta aikaa)."""
-    r = get_redis()
-    if not r:
-        return jsonify([])
-    
-    key = SCOREBOARD_KEY_4x4 if grid_size == "4x4" else SCOREBOARD_KEY_6x6
+    if grid_size not in ['4x4', '6x6']:
+        return jsonify([]), 400
     
     try:
-        # Hae top 10 pienimmällä ajalla (zrange ascending)
-        scores = r.zrange(key, 0, 9, withscores=True)
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT name, time_seconds, moves, created_at 
+            FROM scoreboard 
+            WHERE grid_size = %s 
+            ORDER BY time_seconds ASC 
+            LIMIT 10
+        """, (grid_size,))
+        
         result = []
-        for i, (data, time_score) in enumerate(scores):
-            entry = json.loads(data)
+        for i, row in enumerate(cur.fetchall()):
             result.append({
                 "rank": i + 1,
-                "name": entry.get("name", "Tuntematon"),
-                "time": int(time_score),
-                "moves": entry.get("moves", 0),
-                "date": entry.get("date", "")
+                "name": row[0],
+                "time": row[1],
+                "moves": row[2],
+                "date": row[3].strftime("%d.%m.%Y") if row[3] else ""
             })
+        cur.close()
+        conn.close()
         return jsonify(result)
     except Exception as e:
         return jsonify([])
@@ -302,12 +316,11 @@ def get_scoreboard(grid_size):
 @app.route('/api/memory/scoreboard/<grid_size>', methods=['POST'])
 def add_to_scoreboard(grid_size):
     """Lisää tulos tulostaululle."""
-    r = get_redis()
-    if not r:
-        return jsonify({"error": "Redis ei käytettävissä"}), 503
+    if grid_size not in ['4x4', '6x6']:
+        return jsonify({"error": "Virheellinen ruudukon koko"}), 400
     
     data = request.get_json()
-    name = data.get('name', '').strip()
+    name = data.get('name', '').strip()[:20]  # Rajoita nimen pituus
     time_seconds = data.get('time', 0)
     moves = data.get('moves', 0)
     
@@ -316,27 +329,41 @@ def add_to_scoreboard(grid_size):
     if time_seconds <= 0:
         return jsonify({"error": "Virheellinen aika"}), 400
     
-    key = SCOREBOARD_KEY_4x4 if grid_size == "4x4" else SCOREBOARD_KEY_6x6
-    
     try:
-        from datetime import datetime
-        entry = json.dumps({
-            "name": name[:20],  # Rajoita nimen pituus
-            "moves": moves,
-            "date": datetime.now().strftime("%d.%m.%Y")
-        })
-        # Käytä aikaa scorena (pienempi = parempi)
-        r.zadd(key, {entry: time_seconds})
+        conn = get_db()
+        cur = conn.cursor()
         
-        # Pidä vain top 50 tulosta
-        r.zremrangebyrank(key, 50, -1)
+        # Lisää tulos
+        cur.execute("""
+            INSERT INTO scoreboard (grid_size, name, time_seconds, moves) 
+            VALUES (%s, %s, %s, %s)
+        """, (grid_size, name, time_seconds, moves))
+        conn.commit()
         
         # Tarkista sijoitus
-        rank = r.zrank(key, entry)
+        cur.execute("""
+            SELECT COUNT(*) FROM scoreboard 
+            WHERE grid_size = %s AND time_seconds < %s
+        """, (grid_size, time_seconds))
+        rank = cur.fetchone()[0] + 1
+        
+        # Pidä vain top 10 tulosta per ruudukon koko
+        cur.execute("""
+            DELETE FROM scoreboard WHERE id IN (
+                SELECT id FROM scoreboard 
+                WHERE grid_size = %s 
+                ORDER BY time_seconds ASC 
+                OFFSET 10
+            )
+        """, (grid_size,))
+        conn.commit()
+        
+        cur.close()
+        conn.close()
         
         return jsonify({
             "status": "tallennettu",
-            "rank": rank + 1 if rank is not None else None
+            "rank": rank
         }), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
