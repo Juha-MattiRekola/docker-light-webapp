@@ -17,6 +17,40 @@ Write-Host ""
 # Käynnistä kontit
 Write-Host "Käynnistetään kontteja..." -ForegroundColor Yellow
 docker compose up -d
+$composeExitCode = $LASTEXITCODE
+
+if ($composeExitCode -ne 0) {
+    Write-Host ""
+    Write-Host "════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "  Virhe: Docker Compose epäonnistui!" -ForegroundColor Red
+    Write-Host "════════════════════════════════════════" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Tarkista Docker-tila: " -NoNewline; Write-Host "docker ps" -ForegroundColor Cyan
+    Write-Host "  Katso lokit: " -NoNewline; Write-Host "docker compose logs" -ForegroundColor Cyan
+    Write-Host ""
+    exit 1
+}
+
+# Tarkista että kontit ovat käynnissä
+Start-Sleep -Seconds 2
+$runningContainers = (docker compose ps --status running -q 2>$null | Measure-Object -Line).Lines
+$expectedServices = (docker compose config --services 2>$null | Measure-Object -Line).Lines
+
+if ($runningContainers -eq 0) {
+    Write-Host ""
+    Write-Host "════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "  Virhe: Yhtään konttia ei käynnissä!" -ForegroundColor Red
+    Write-Host "════════════════════════════════════════" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Tarkista lokit: " -NoNewline; Write-Host "docker compose logs" -ForegroundColor Cyan
+    Write-Host ""
+    exit 1
+} elseif ($runningContainers -lt $expectedServices) {
+    Write-Host ""
+    Write-Host "════════════════════════════════════════" -ForegroundColor Yellow
+    Write-Host "  Varoitus: Vain $runningContainers/$expectedServices konttia käynnissä" -ForegroundColor Yellow
+    Write-Host "════════════════════════════════════════" -ForegroundColor Yellow
+}
 
 # Odota että tunnel-kontti käynnistyy
 Write-Host "Odotetaan Cloudflare-tunnelia..." -ForegroundColor Yellow

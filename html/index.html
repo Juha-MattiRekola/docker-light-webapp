@@ -24,6 +24,11 @@
         
         @media (max-width: 600px) {
             .ascii-art { font-size: 6px; }
+            .prompt { 
+                font-size: 14px; 
+                white-space: normal;
+                word-wrap: break-word;
+            }
         }
         
         .intro {
@@ -77,6 +82,129 @@
             color: var(--text-dim);
             font-size: 15px;
             margin-top: 5px;
+        }
+        
+        /* Terminal menu effect */
+        .terminal-menu {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            font-family: var(--font-mono);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        
+        .terminal-menu-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .terminal-menu-prompt {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+        
+        .terminal-menu-title {
+            color: var(--text);
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .terminal-menu-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--accent);
+            margin-left: 8px;
+            animation: blink 1s infinite;
+        }
+        
+        .terminal-menu-arrow {
+            margin-left: auto;
+            color: var(--text-dim);
+            transition: transform 0.3s;
+        }
+        
+        .terminal-menu.open .terminal-menu-arrow {
+            transform: rotate(90deg);
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .terminal-menu-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        
+        .terminal-menu.open .terminal-menu-content {
+            max-height: 500px;
+        }
+        
+        .terminal-menu-items {
+            padding-top: 15px;
+        }
+        
+        .terminal-menu-item {
+            display: block;
+            padding: 10px 0 10px 25px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 16px;
+            position: relative;
+            transition: color 0.2s, padding-left 0.2s;
+        }
+        
+        .terminal-menu-item::before {
+            content: '>';
+            position: absolute;
+            left: 8px;
+            color: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .terminal-menu-item:hover {
+            color: var(--accent);
+            padding-left: 30px;
+        }
+        
+        .terminal-menu-item:hover::before {
+            opacity: 1;
+        }
+        
+        .terminal-menu-item span {
+            display: block;
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 3px;
+            opacity: 0.7;
+        }
+        
+        .terminal-menu-item:hover span {
+            color: var(--text-dim);
+        }
+        
+        /* Typed output effect */
+        .typed-output {
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .terminal-menu.open .typed-output {
+            opacity: 1;
         }
         
         .services-grid {
@@ -172,9 +300,38 @@
             from { width: 0; }
             to { width: 100%; }
         }
+        
+        /* On mobile, disable typing animation and allow text to wrap */
+        @media (max-width: 600px) {
+            .typing {
+                white-space: normal;
+                animation: none;
+                width: auto;
+                overflow: visible;
+            }
+        }
     </style>
 </head>
 <body>
+    <nav class="top-nav">
+        <a href="index.html" class="top-nav-home" title="Etusivu">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.186.186 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.119a.185.185 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>
+        </a>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Tietoa:</span>
+            <a href="arkkitehtuuri.html">Arkkitehtuuri</a>
+            <a href="docker.html">Docker</a>
+            <a href="compose.html">Compose</a>
+        </div>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Sovellukset:</span>
+            <a href="notes.html">Muistiinpanot</a>
+            <a href="muistipeli.html">Muistipeli</a>
+            <a href="/api/image">Kuvatyökalu</a>
+        </div>
+    </nav>
     <div class="container">
         <div class="terminal-header">
             <div class="terminal-dot dot-red"></div>
@@ -217,39 +374,64 @@
             </div>
             
             <div class="nav-section">
-                <div class="section-title">Docker-tietoa</div>
-                <div class="nav-grid">
-                    <a href="arkkitehtuuri.html" class="nav-link">
-                        docker-arkkitehtuuri
-                        <span>Tämän esimerkkisovelluksen tekninen dokumentaatio</span>
-                    </a>
-                    <a href="docker.html" class="nav-link">
-                        docker-perusteet
-                        <span>Dockerin peruskäsitteet ja peruskomennot</span>
-                    </a>
-                    <a href="compose.html" class="nav-link">
-                        docker-compose
-                        <span>Useamman kontin orkestrointi Dockerissa</span>
-                    </a>
+                <div class="terminal-menu" id="dockerMenu">
+                    <div class="terminal-menu-header" onclick="toggleMenu('dockerMenu')">
+                        <span class="terminal-menu-prompt">$</span>
+                        <span class="terminal-menu-title">Docker-tietoa</span>
+                        <span class="terminal-menu-cursor"></span>
+                        <span class="terminal-menu-arrow">▶</span>
+                    </div>
+                    <div class="terminal-menu-content">
+                        <div class="terminal-menu-items">
+                            <a href="arkkitehtuuri.html" class="terminal-menu-item">
+                                ./docker-arkkitehtuuri
+                                <span>Tämän esimerkkisovelluksen tekninen dokumentaatio</span>
+                            </a>
+                            <a href="docker.html" class="terminal-menu-item">
+                                ./docker-perusteet
+                                <span>Dockerin peruskäsitteet ja peruskomennot</span>
+                            </a>
+                            <a href="compose.html" class="terminal-menu-item">
+                                ./docker-compose
+                                <span>Useamman kontin orkestrointi Dockerissa</span>
+                            </a>
+                        </div>
+                        <div class="typed-output">
+                            <span style="color: var(--accent);">→</span> 3 tiedostoa löydetty
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <div class="nav-section">
-                <div class="section-title">Navigoi</div>
-                <div class="nav-grid">
-                    <a href="notes.html" class="nav-link">
-                        muistiinpanot
-                        <span>Tee hyvin säilyviä muistiinpanoja</span>
-                    </a>
-                    <a href="muistipeli.html" class="nav-link">
-                        muistipeli
-                        <span>Interaktiivinen peli tallennuksella. Klassikko</span>
-                    </a>
-                    <a href="/api/image" class="nav-link">
-                        kuvatyökalu
-                        <span>Säädä valitsemasi kuvan pikselimäärää</span>
-                    </a>
+                <div class="terminal-menu" id="navMenu">
+                    <div class="terminal-menu-header" onclick="toggleMenu('navMenu')">
+                        <span class="terminal-menu-prompt">$</span>
+                        <span class="terminal-menu-title">Navigoi</span>
+                        <span class="terminal-menu-cursor"></span>
+                        <span class="terminal-menu-arrow">▶</span>
+                    </div>
+                    <div class="terminal-menu-content">
+                        <div class="terminal-menu-items">
+                            <a href="notes.html" class="terminal-menu-item">
+                                ./muistiinpanot
+                                <span>Tee hyvin säilyviä muistiinpanoja</span>
+                            </a>
+                            <a href="muistipeli.html" class="terminal-menu-item">
+                                ./muistipeli
+                                <span>Interaktiivinen peli tallennuksella. Klassikko</span>
+                            </a>
+                            <a href="/api/image" class="terminal-menu-item">
+                                ./kuvatyökalu
+                                <span>Säädä valitsemasi kuvan pikselimäärää</span>
+                            </a>
+                        </div>
+                        <div class="typed-output">
+                            <span style="color: var(--accent);">→</span> 3 sovellusta käytettävissä
+                        </div>
+                    </div>
                 </div>
+            </div>
             </div>
             
             <div class="section-title">Palvelut</div>
@@ -346,6 +528,22 @@
             }
         }
         checkAPI();
+        
+        // Terminal menu toggle
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            menu.classList.toggle('open');
+        }
+        
+        // Open both menus by default on page load for better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('dockerMenu').classList.add('open');
+            }, 300);
+            setTimeout(() => {
+                document.getElementById('navMenu').classList.add('open');
+            }, 600);
+        });
     </script>
 </body>
 </html>

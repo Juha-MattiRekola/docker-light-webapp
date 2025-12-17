@@ -19,6 +19,70 @@
             transition: background 0.3s, border-color 0.3s;
         }
         
+        /* Mobile scroll container for diagram */
+        .diagram-container {
+            position: relative;
+        }
+        
+        .scroll-hint {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            color: var(--text-dim);
+            font-size: 13px;
+            background: rgba(62, 207, 142, 0.1);
+            border: 1px dashed var(--accent);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        
+        .scroll-hint span {
+            color: var(--accent);
+        }
+        
+        @media (max-width: 800px) {
+            .scroll-hint {
+                display: block;
+            }
+            .arch-diagram {
+                font-size: 11px;
+            }
+            .arch-diagram-desktop {
+                display: none;
+            }
+            .arch-diagram-mobile {
+                display: block;
+            }
+        }
+        
+        .arch-diagram-mobile {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .arch-diagram {
+                font-size: 12px;
+                padding: 15px;
+            }
+            /* Ensure h1 stays inside terminal body - two lines on mobile */
+            h1 {
+                font-size: 1.2em;
+            }
+            h1 .mobile-break {
+                display: block;
+            }
+            .subtitle {
+                font-size: 15px;
+            }
+            .scroll-hint {
+                display: none;
+            }
+        }
+        
+        h1 .mobile-break {
+            display: inline;
+        }
+        
         .flow-section {
             margin: 30px 0;
         }
@@ -92,6 +156,25 @@
     </style>
 </head>
 <body>
+    <nav class="top-nav">
+        <a href="index.html" class="top-nav-home" title="Etusivu">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.186.186 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.119a.185.185 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>
+        </a>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Tietoa:</span>
+            <a href="arkkitehtuuri.html">Arkkitehtuuri</a>
+            <a href="docker.html">Docker</a>
+            <a href="compose.html">Compose</a>
+        </div>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Sovellukset:</span>
+            <a href="notes.html">Muistiinpanot</a>
+            <a href="muistipeli.html">Muistipeli</a>
+            <a href="/api/image">Kuvatyökalu</a>
+        </div>
+    </nav>
     <div class="container container-wide">
         <div class="terminal-header">
             <div class="terminal-dot dot-red"></div>
@@ -104,7 +187,7 @@
         <div class="terminal-body">
             <a href="index.html" class="back-link">takaisin</a>
             
-            <h1>Järjestelmäarkkitehtuuri</h1>
+            <h1>Järjestelmä<span class="mobile-break">-</span>arkkitehtuuri</h1>
             <p class="subtitle" style="white-space: pre-line;">Mikropalveluiden rakenne ja vuorovaikutus on kevyesti selvennettynä tällä sivulla.
 
                 <b>KOKONAISARKKITEHTUURI</b> pyrkii kuvaamaan tämän kevyen esimerkkisovelluksen rakenteen kaavion avulla.
@@ -116,7 +199,11 @@
             
             <h2 class="section-title">Kokonaisarkkitehtuuri</h2>
             
-            <div class="arch-diagram">
+            <div class="diagram-container">
+                <div class="scroll-hint">
+                    <span>←</span> Vieritä sivusuunnassa nähdäksesi kaavion <span>→</span>
+                </div>
+                <div class="arch-diagram arch-diagram-desktop">
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  <span style="color: var(--accent);">INTERNET</span>                                                                    │
 │      │                                                                       │
@@ -153,6 +240,48 @@
 │  │ Pysyvä data│   │ Välimuisti │                    └────────────┘           │
 │  └────────────┘   └────────────┘                                             │
 └──────────────────────────────────────────────────────────────────────────────┘</div>
+                <div class="arch-diagram arch-diagram-mobile">
+<span style="color: var(--accent);">INTERNET</span>
+    │
+    ▼
+┌─────────────────────┐
+│ <span style="color: var(--accent);">Cloudflare Tunnel</span>  │
+│ Julkinen pääsy      │
+└─────────────────────┘
+    │
+    ▼
+┌─────────────────────┐
+│ <span style="color: var(--accent);">NGINX</span> :80          │
+│ Reverse Proxy       │
+│ ─────────────────── │
+│ /      → HTML       │
+│ /api/* → Flask      │
+│ /adminer → DB       │
+│ /prometheus         │
+│ /grafana            │
+└─────────────────────┘
+    │
+    ├────────┬────────┐
+    ▼        ▼        ▼
+┌───────┐┌───────┐┌───────┐
+│<span style="color: var(--accent);">Flask</span>  ││<span style="color: var(--accent);">Adminer</span>││<span style="color: var(--accent);">Prom.</span>  │
+│:5000  ││:8080  ││:9090  │
+└───────┘└───────┘└───────┘
+    │        │        ▲
+    ▼        ▼        │
+┌───────┐┌───────┐    │
+│<span style="color: var(--accent);">Postgre</span>││<span style="color: var(--accent);">Redis</span>  │────┘
+│:5432  ││:6379  │
+└───────┘└───────┘
+
+┌───────┐
+│<span style="color: var(--accent);">Grafana</span>│ :3000
+│Dashb. │ ← Prometheus
+└───────┘</div>
+                <div class="scroll-hint" style="margin-top: 10px; margin-bottom: 0;">
+                    <span>←</span> Vieritä sivusuunnassa nähdäksesi kaavion <span>→</span>
+                </div>
+            </div>
             
             <h2 class="section-title">Teknologiat</h2>
             
@@ -237,8 +366,7 @@
                 
                 Kontit ovat pieniä ja rajattuja kokonaisuuksia.
                 Tästä johtuen niistä on myös helpompaa löytää mahdollisia vikoja ja pullonkauloja.
-                Lisäksi kontit ovat kevyitä ja nopeita käynnistää, ne ovat helposti siirrettävissä
-                eri ympäristöjen välillä.
+                Lisäksi kontit ovat kevyitä ja nopeita käynnistää, ne ovat helposti siirrettävissä eri ympäristöjen välillä.
                 
                 Pilvipalvelutkin tukevat kontteja laajasti.
             </div>

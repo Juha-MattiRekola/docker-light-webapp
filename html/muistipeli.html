@@ -20,13 +20,14 @@
             gap: 10px;
             max-width: 500px;
             margin: 0 auto 25px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .grid-4x4 { grid-template-columns: repeat(4, 1fr); }
         .grid-6x6 { 
             grid-template-columns: repeat(6, 1fr); 
             max-width: 600px;
-            margin: 0 auto 25px;
         }
         
         .card {
@@ -41,6 +42,8 @@
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
+            min-width: 0;
+            overflow: hidden;
         }
         
         .grid-6x6 .card {
@@ -68,20 +71,59 @@
             color: var(--text-dim);
         }
         
-        @media (max-width: 500px) {
-            .game-grid {
-                max-width: 100%;
-                gap: 6px;
+        /* Mobile responsive for game grids */
+        @media (max-width: 600px) {
+            .terminal-body {
+                padding: 15px;
             }
-            .card { font-size: 1.8em; }
-            .grid-6x6 .card { font-size: 1.2em; }
-            .stats { gap: 20px; padding: 15px; }
-            .stat-value { font-size: 1.4em; }
+            .game-grid {
+                max-width: calc(100vw - 70px);
+                gap: 5px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .grid-4x4 {
+                max-width: calc(100vw - 70px);
+            }
+            .grid-6x6 {
+                max-width: calc(100vw - 70px);
+                gap: 3px;
+            }
+            .card { 
+                font-size: 1.5em;
+                border-width: 1px;
+                border-radius: 4px;
+            }
+            .grid-6x6 .card { 
+                font-size: 1em;
+            }
+            .stats { gap: 15px; padding: 12px; }
+            .stat-value { font-size: 1.3em; }
+        }
+        
+        @media (max-width: 400px) {
+            .game-grid {
+                max-width: calc(100vw - 50px);
+                gap: 4px;
+            }
+            .grid-6x6 {
+                gap: 2px;
+            }
+            .card {
+                font-size: 1.3em;
+            }
+            .grid-6x6 .card {
+                font-size: 0.85em;
+            }
         }
         
         @media (max-width: 360px) {
-            .game-grid { gap: 4px; }
-            .grid-6x6 .card { font-size: 1em; }
+            .game-grid { 
+                gap: 3px;
+                max-width: calc(100vw - 40px);
+            }
+            .grid-6x6 .card { font-size: 0.75em; }
+            .card { font-size: 1.1em; }
         }
         
         .save-section {
@@ -113,6 +155,15 @@
             border-color: var(--accent);
         }
         
+        @media (max-width: 500px) {
+            .save-form {
+                flex-direction: column;
+            }
+            .save-form .btn {
+                width: 100%;
+            }
+        }
+        
         .saves-list {
             display: grid;
             gap: 10px;
@@ -133,11 +184,13 @@
         
         .save-info {
             flex: 1;
+            min-width: 0;
         }
         
         .save-name {
             color: var(--text);
             font-size: 18px;
+            word-break: break-word;
         }
         
         .save-meta {
@@ -149,6 +202,21 @@
         .save-actions {
             display: flex;
             gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 400px) {
+            .save-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .save-actions {
+                width: 100%;
+            }
+            .save-actions button {
+                flex: 1;
+            }
         }
         
         /* Scoreboard */
@@ -187,6 +255,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 16px;
+            table-layout: fixed;
         }
         
         .scoreboard-table th,
@@ -194,6 +263,46 @@
             text-align: left;
             padding: 10px 12px;
             border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .scoreboard-table th:first-child,
+        .scoreboard-table td:first-child {
+            width: 40px;
+        }
+        
+        .scoreboard-table th:nth-child(2),
+        .scoreboard-table td:nth-child(2) {
+            width: auto;
+        }
+        
+        .scoreboard-table th:nth-child(3),
+        .scoreboard-table td:nth-child(3),
+        .scoreboard-table th:nth-child(4),
+        .scoreboard-table td:nth-child(4) {
+            width: 70px;
+        }
+        
+        @media (max-width: 500px) {
+            .scoreboard-table {
+                font-size: 13px;
+            }
+            .scoreboard-table th,
+            .scoreboard-table td {
+                padding: 8px 6px;
+            }
+            .scoreboard-table th:first-child,
+            .scoreboard-table td:first-child {
+                width: 30px;
+            }
+            .scoreboard-table th:nth-child(3),
+            .scoreboard-table td:nth-child(3),
+            .scoreboard-table th:nth-child(4),
+            .scoreboard-table td:nth-child(4) {
+                width: 55px;
+            }
         }
         
         .scoreboard-table th {
@@ -255,15 +364,28 @@
             color: var(--text-dim);
             margin-bottom: 20px;
         }
-        
-        @media (max-width: 500px) {
-            .game-grid { gap: 6px; }
-            .card { font-size: 1.8em; }
-            .grid-6x6 .card { font-size: 1.4em; }
-        }
     </style>
 </head>
 <body>
+    <nav class="top-nav">
+        <a href="index.html" class="top-nav-home" title="Etusivu">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.186.186 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.119a.185.185 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>
+        </a>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Tietoa:</span>
+            <a href="arkkitehtuuri.html">Arkkitehtuuri</a>
+            <a href="docker.html">Docker</a>
+            <a href="compose.html">Compose</a>
+        </div>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Sovellukset:</span>
+            <a href="notes.html">Muistiinpanot</a>
+            <a href="muistipeli.html">Muistipeli</a>
+            <a href="/api/image">Kuvatyökalu</a>
+        </div>
+    </nav>
     <div class="container">
         <div class="terminal-header">
             <div class="terminal-dot dot-red"></div>

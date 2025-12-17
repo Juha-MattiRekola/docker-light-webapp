@@ -362,14 +362,26 @@ IMAGE_FORM = """
             background: var(--bg-dark);
             color: var(--text);
             min-height: 100vh;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 18px;
             transition: background 0.3s, color 0.3s;
         }
         
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 40px 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .container { padding: 20px 15px; }
+            .terminal-body { padding: 20px; }
+            h1 { font-size: 1.4em; }
+            .subtitle { font-size: 15px; }
+            .info-box { font-size: 14px; padding: 12px 15px; }
+            .slider-value { font-size: 1.6em; }
+            .examples { flex-direction: column; gap: 15px; font-size: 14px; }
+            .btn { padding: 12px; font-size: 15px; }
         }
         
         .terminal-header {
@@ -480,6 +492,11 @@ IMAGE_FORM = """
         label::before { content: '// '; }
         
         .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: block;
             width: 100%;
             padding: 20px;
             background: var(--bg-dark);
@@ -490,8 +507,13 @@ IMAGE_FORM = """
             font-size: 16px;
             cursor: pointer;
             transition: border-color 0.2s;
+            text-align: center;
         }
-        .file-input:hover { border-color: var(--accent); }
+        .file-label:hover { border-color: var(--accent); }
+        .file-label.has-file { 
+            border-color: var(--accent); 
+            color: var(--accent);
+        }
         
         .slider-container {
             background: var(--bg-dark);
@@ -557,9 +579,97 @@ IMAGE_FORM = """
             color: var(--accent);
             margin-bottom: 5px;
         }
+        
+        /* Top Navigation Menu */
+        .top-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .top-nav-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-nav-label {
+            color: var(--text-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .top-nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 15px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+        .top-nav a:hover {
+            color: var(--accent);
+            background: rgba(62, 207, 142, 0.1);
+        }
+        .top-nav-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 10px;
+        }
+        .top-nav-home {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .top-nav-home:hover {
+            background: rgba(62, 207, 142, 0.1);
+        }
+        .top-nav-home svg {
+            width: 24px;
+            height: 24px;
+        }
+        @media (max-width: 500px) {
+            .top-nav { padding: 10px 12px; gap: 6px; }
+            .top-nav a { font-size: 12px; padding: 4px 7px; }
+            .top-nav-label { font-size: 10px; }
+            .top-nav-divider { display: none; }
+            .top-nav-group { gap: 5px; }
+            .top-nav-home { font-size: 14px; padding: 4px 8px; }
+            .top-nav-home svg { width: 18px; height: 18px; }
+        }
     </style>
 </head>
 <body>
+    <nav class="top-nav">
+        <a href="/" class="top-nav-home" title="Etusivu">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.186.186 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.185-.186h-2.119a.185.185 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>
+        </a>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Tietoa:</span>
+            <a href="/arkkitehtuuri.html">Arkkitehtuuri</a>
+            <a href="/docker.html">Docker</a>
+            <a href="/compose.html">Compose</a>
+        </div>
+        <div class="top-nav-divider"></div>
+        <div class="top-nav-group">
+            <span class="top-nav-label">Sovellukset:</span>
+            <a href="/notes.html">Muistiinpanot</a>
+            <a href="/muistipeli.html">Muistipeli</a>
+            <a href="/api/image">Kuvatyökalu</a>
+        </div>
+    </nav>
     <div class="container">
         <div class="terminal-header">
             <div class="terminal-dot dot-red"></div>
@@ -590,7 +700,10 @@ IMAGE_FORM = """
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Valitse kuva</label>
-                    <input type="file" name="image" accept="image/*" required class="file-input">
+                    <label class="file-label" id="fileLabel">
+                        Ei valittua tiedostoa - klikkaa valitaksesi
+                        <input type="file" name="image" accept="image/*" required class="file-input" id="fileInput" onchange="updateFileName(this)">
+                    </label>
                 </div>
                 
                 <div class="form-group">
@@ -634,6 +747,15 @@ IMAGE_FORM = """
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        
+        function updateFileName(input) {
+            const label = document.getElementById('fileLabel');
+            if (input.files && input.files[0]) {
+                label.textContent = input.files[0].name;
+                label.classList.add('has-file');
+                label.appendChild(input);
+            }
         }
     </script>
 </body>

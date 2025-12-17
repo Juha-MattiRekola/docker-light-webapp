@@ -16,6 +16,7 @@
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # Ei väriä
 
 echo -e "${CYAN}"
@@ -26,7 +27,31 @@ echo -e "${NC}"
 
 # Käynnistä kontit
 echo -e "${YELLOW}Käynnistetään kontteja...${NC}"
-docker compose up -d
+if ! docker compose up -d; then
+    echo -e "\n${RED}════════════════════════════════════════${NC}"
+    echo -e "${RED}  Virhe: Docker Compose epäonnistui!${NC}"
+    echo -e "${RED}════════════════════════════════════════${NC}"
+    echo -e "\n  Tarkista Docker-tila: ${CYAN}docker ps${NC}"
+    echo -e "  Katso lokit: ${CYAN}docker compose logs${NC}\n"
+    exit 1
+fi
+
+# Tarkista että kontit ovat käynnissä
+sleep 2
+RUNNING_COUNT=$(docker compose ps --status running -q 2>/dev/null | wc -l)
+EXPECTED_COUNT=$(docker compose config --services 2>/dev/null | wc -l)
+
+if [ "$RUNNING_COUNT" -eq 0 ]; then
+    echo -e "\n${RED}════════════════════════════════════════${NC}"
+    echo -e "${RED}  Virhe: Yhtään konttia ei käynnissä!${NC}"
+    echo -e "${RED}════════════════════════════════════════${NC}"
+    echo -e "\n  Tarkista lokit: ${CYAN}docker compose logs${NC}\n"
+    exit 1
+elif [ "$RUNNING_COUNT" -lt "$EXPECTED_COUNT" ]; then
+    echo -e "\n${YELLOW}════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}  Varoitus: Vain $RUNNING_COUNT/$EXPECTED_COUNT konttia käynnissä${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════${NC}"
+fi
 
 # Odota että tunnel-kontti käynnistyy
 echo -e "${YELLOW}Odotetaan Cloudflare-tunnelia...${NC}"
