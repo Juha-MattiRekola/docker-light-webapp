@@ -9,13 +9,13 @@
         /* Notes-sivun omat tyylit */
         .notes-form {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 10px;
             margin-bottom: 25px;
         }
         
         .notes-form input {
-            flex: 1;
+            width: 100%;
             padding: 12px 15px;
             background: var(--bg-dark);
             border: 1px solid var(--border);
@@ -26,33 +26,34 @@
             transition: border-color 0.2s, background 0.3s;
         }
         
-        .notes-form input:focus {
+        .notes-form input:focus,
+        .notes-form textarea:focus {
             outline: none;
             border-color: var(--accent);
         }
         
-        .notes-form input::placeholder { color: var(--text-dim); }
+        .notes-form input::placeholder,
+        .notes-form textarea::placeholder { color: var(--text-dim); }
         
-        .notes-form input.title-input {
-            flex: 0.4;
+        .notes-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--font-mono);
+            font-size: 18px;
+            resize: vertical;
+            transition: border-color 0.2s, background 0.3s;
         }
         
         .notes-form button {
-            flex-shrink: 0;
+            width: 100%;
         }
         
         @media (max-width: 600px) {
-            .notes-form {
-                flex-direction: column;
-            }
-            .notes-form input.title-input,
-            .notes-form input {
-                flex: none;
-                width: 100%;
-            }
-            .notes-form button {
-                width: 100%;
-            }
             .note-item {
                 flex-direction: column;
                 gap: 10px;
@@ -130,7 +131,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">notes ~ terminal</span>
+            <span class="terminal-title">muistiinpanot ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -138,11 +139,16 @@
             <a href="index.html" class="back-link">takaisin</a>
             
             <h1>Muistiinpanot</h1>
-            <p class="subtitle">Tallennetaan PostgreSQL-tietokantaan</p>
+            <p class="subtitle" style="white-space:pre-line;">Voit lisätä uuden otsikoidun muistiinpanon alla olevalla lomakkeella, ja ne näkyvät listattuna alapuolella.
+                Jokaisen muistiinpanon voi poistaa erikseen "poista"-napista, muokkaustoiminto on vasta kehityksen alla.
+
+                Muistiinpanot tallennetaan PostgreSQL-tietokantaan. Muistiinpanotiedot haetaan tietokannasta, mikäli Redis-välimuisti on tyhjä.
+                Välimuisti tyhjennetään aina uuden muistiinpanon lisäämisen tai poistamisen jälkeen, jotta näytettävät tiedot pysyvät ajan tasalla.
+            </p>
             
             <form class="notes-form" onsubmit="addNote(event)">
-                <input type="text" id="titleInput" class="title-input" placeholder="Otsikko (valinnainen)">
-                <input type="text" id="noteInput" placeholder="Kirjoita muistiinpano..." required>
+                <input type="text" id="titleInput" placeholder="Otsikko (valinnainen)">
+                <textarea id="noteInput" placeholder="Kirjoita muistiinpano..." required></textarea>
                 <button type="submit" class="btn">Lisää</button>
             </form>
             

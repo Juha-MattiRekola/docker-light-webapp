@@ -269,7 +269,7 @@
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">memory-game ~ terminal</span>
+            <span class="terminal-title">muistipeli ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -277,7 +277,14 @@
             <a href="index.html" class="back-link">takaisin</a>
             
             <h1>Muistipeli</h1>
-            <p class="subtitle">Pelitila tallennetaan Redis-välimuistiin</p>
+            <p class="subtitle" style="white-space: pre-line;">Pelaa emojiaiheista muistipeliä aikaa vastaan.
+                Haasta kaverisi lyömään tuloksesi paikallispelissä. Voit tallentaa pelisi kesken jääneenä, ja jatkaa myöhemmin siitä mihin jäit.
+                
+                Pelitila tallennetaan Redis-välimuistiin, Redis hash-rakenteeseen.
+                Tallennetut pelit voi ladata myöhemmin uudelleen, tai poistaa tarpeettomina.
+                Pelin voittamisen jälkeen pelaajan tulos (aika ja siirrot) tallennetaan PostgreSQL-tietokantaan,
+                josta ne haetaan näkyviin tulostauluun, mikäli ne eivät löydy välimuistista.
+            </p>
             
             <div class="stats">
                 <div class="stat">

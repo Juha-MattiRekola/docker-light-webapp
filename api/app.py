@@ -565,7 +565,7 @@ IMAGE_FORM = """
             <div class="terminal-dot dot-red"></div>
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
-            <span class="terminal-title">image-processor.py</span>
+            <span class="terminal-title">kuvatyökalu ~ terminaali</span>
             <button class="theme-toggle" onclick="toggleTheme()">teema</button>
         </div>
         
@@ -573,10 +573,16 @@ IMAGE_FORM = """
             <a href="/" class="back-link">takaisin</a>
             
             <h1>Pikselitehoste</h1>
-            <p class="subtitle">Luo uniikkeja kuvia pikselihajotuksella</p>
+            <p class="subtitle" style="white-space: pre-line;">Luo kuvia pikselihajotuksella.
+                Tässä työkalussa voit ladata kuvan ja valita kuinka suuri osa pikseleistä näytetään valitsemassasi kuvassa.
+
+                Tämä työkalu havainnollistaa pikseleiden merkitystä kuvan muodostumisessa.
+                Mitä jos osa pikseleistä puuttuisi? Kuinka paljon tietoa tarvitaan, jotta kuva on tunnistettavissa?
+                Kokeile eri prosentteja ja katso miten kuva muuttuu. Voit tutkia, miten paljon pikseleitä tarvitaan erilaisten objektien tunnistamiseen kuvasta.
+            </p>
             
             <div class="info-box">
-                <strong>Miten tämä toimii?</strong>
+                <strong>Lyhyesti: Miten tämä toimii?</strong>
                 Lataa kuva ja valitse kuinka suuri osa pikseleistä näytetään. 
                 Pienempi prosentti = abstraktimpi tulos. Loput pikselit muuttuvat mustiksi.
             </div>
@@ -606,7 +612,7 @@ IMAGE_FORM = """
                 </div>
                 <div class="example">
                     <span class="example-label">50%</span>
-                    Tasapaino
+                    Puolet tiedosta jäljellä
                 </div>
                 <div class="example">
                     <span class="example-label">90%</span>
