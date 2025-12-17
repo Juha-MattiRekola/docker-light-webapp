@@ -47,10 +47,21 @@ def init_db(max_retries=30, delay=1):
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS notes (
                     id SERIAL PRIMARY KEY,
+                    title TEXT,
                     content TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
+            """)
+            # Migraatio: lisää title-sarake jos sitä ei ole
+            cur.execute("""
+                DO $$ 
+                BEGIN 
+                    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                                   WHERE table_name='notes' AND column_name='title') THEN
+                        ALTER TABLE notes ADD COLUMN title TEXT;
+                    END IF;
+                END $$;
             """)
             conn.commit()
             cur.close()
@@ -114,12 +125,13 @@ def notes():
     if request.method == 'POST':
         data = request.get_json()
         content = data.get('content', '') if data else ''
+        title = data.get('title', '') if data else ''
         if not content:
             return jsonify({"error": "content vaaditaan"}), 400
         
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("INSERT INTO notes (content) VALUES (%s) RETURNING id, created_at", (content,))
+        cur.execute("INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id, created_at", (title or None, content,))
         row = cur.fetchone()
         conn.commit()
         cur.close()
@@ -140,12 +152,13 @@ def notes():
         # Hae tietokannasta
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("SELECT id, content, created_at, updated_at FROM notes ORDER BY id DESC")
+        cur.execute("SELECT id, title, content, created_at, updated_at FROM notes ORDER BY id DESC")
         notes_list = [{
-            "id": row[0], 
-            "content": row[1],
-            "created_at": row[2].isoformat() if row[2] else None,
-            "updated_at": row[3].isoformat() if row[3] else None
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "created_at": row[3].isoformat() + 'Z' if row[3] else None,
+            "updated_at": row[4].isoformat() + 'Z' if row[4] else None
         } for row in cur.fetchall()]
         cur.close()
         conn.close()
